@@ -74,7 +74,7 @@ def get_svn_filelist( dir='.' )
 	# the additional complexity to make it handle that case. If we do need that, there's
 	# always the --xml output for 'svn st'...
 	return list.split( $/ ).
-		reject {|line| line =~ /^\?/ }.
+		reject {|line| line =~ /^(\?|(\s*|--- .*)$)/ }.
 		collect {|fn| Pathname(fn[/\S+$/]) }
 end
 
@@ -180,6 +180,7 @@ def get_svn_status( *targets )
 	trace "Getting svn status for targets: %p" % [targets]
 	status = IO.read( '|-' ) or exec 'svn', 'st', '--ignore-externals', *(targets.flatten)
 	entries = status.split( /\n/ ).
+		select {|line| line !~ /^(\s*|--- .*)$/ }.
 		collect do |line|
 			flag, path = line.strip.split( /\s+/, 2 )
 			[ flag, Pathname.new(path) ]
@@ -477,7 +478,11 @@ namespace :svn do
 			end
 		
 			unless files_to_ignore.empty?
-				abort "Ignoring not yet implemented"
+				log "Adding %d file/s to the ignore list" % [ files_to_ignore.length ]
+				io = open( '|-' ) or exec 'svn', 'pg', 'svn:ignore'
+				ignorelist = io.read.strip
+				ignorelist << "\n" << files_to_ignore.join("\n")
+				system 'svn', 'ps', 'svn:ignore', ignorelist, '.'
 			end
 		
 		end

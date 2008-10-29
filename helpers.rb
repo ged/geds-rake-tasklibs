@@ -391,7 +391,7 @@ end
 
 ### Extract all the non Rake-target arguments from ARGV and return them.
 def get_target_args
-	args = ARGV.reject {|arg| Rake::Task.task_defined?(arg) }
+	args = ARGV.reject {|arg| arg =~ /^-/ || Rake::Task.task_defined?(arg) }
 	return args
 end
 
