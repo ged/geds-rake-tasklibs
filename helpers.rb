@@ -396,4 +396,13 @@ def get_target_args
 end
 
 
+### Log a subdirectory change, execute a block, and exit the subdirectory
+def in_subdirectory( subdir )
+	block = Proc.new
+	
+	log "Entering #{subdir}"
+	Dir.chdir( subdir, &block )
+	log "Leaving #{subdir}"
+end
+	
 
