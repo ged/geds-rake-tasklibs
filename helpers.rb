@@ -80,7 +80,7 @@ end
 def rake( *targets )
 	opts = ARGV.select {|arg| arg[0,1] == '-' }
 	args = opts + targets.map {|t| t.to_s }
-	run 'rake', *args
+	run 'rake', '-N', *args
 end
 
 
