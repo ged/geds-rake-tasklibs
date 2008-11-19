@@ -202,7 +202,7 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	<%= line.chomp %>
 <% end %>
 	EOD
-<% if settings['post_install_message'] %>
+<% if settings['post_install_message'] && settings['post_install_message'] =~ /\S/ %>
 	gem.post_install_message = <<-EOD
 	<% for line in settings['post_install_message'] %>
 		<%= line.chomp %>
