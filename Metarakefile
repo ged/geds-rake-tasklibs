@@ -136,17 +136,28 @@ end
 task :default => [ RAKEFILE, LICENSE, README ]
 
 
-### Main task: build the Rakefile by merging values from the project settings file with the 
-### Rakefile template.
-desc "Generate a new project Rakefile in the current directory"
-task RAKEFILE.to_s => [ RAKEFILE_TEMPLATE, PROJECT_SETTINGS_FILE ] do
-	template = ERB.new( RAKEFILE_TEMPLATE.read, nil, '<>' )
+### Generate a new copy of the specified +file+ by merging the project settings file into the
+### given +template_file+. Both +file+ and +template_file+ should be Pathname objects.
+def generate_file_from_template( file, template_file, force=false )
+	if file.exist? && !force
+		return unless ask_for_confirmation( "Replace existing #{file.basename}?", false ) { true }
+	end
+
+	template = ERB.new( template_file.read, nil, '<>' )
 	settings = YAML.load_file( PROJECT_SETTINGS_FILE )
 
 	output = template.result( binding() )
-	RAKEFILE.open( File::WRONLY|File::CREAT|File::TRUNC ) do |fh|
+	file.open( File::WRONLY|File::CREAT|File::TRUNC ) do |fh|
 		fh.print output
 	end
+end
+
+
+### Main task: build the Rakefile by merging values from the project settings file with the 
+### Rakefile template.
+desc "Generate a new project Rakefile in the current directory"
+file RAKEFILE.to_s => [ RAKEFILE_TEMPLATE, PROJECT_SETTINGS_FILE ] do
+	generate_file_from_template( RAKEFILE, RAKEFILE_TEMPLATE, true )
 end
 
 CLOBBER.include( RAKEFILE )
@@ -154,34 +165,21 @@ CLOBBER.include( RAKEFILE )
 
 ### Task: Build a LICENSE file
 desc "Generate a new project LICENSE file in the current directory"
-task LICENSE.to_s => [ LICENSE_TEMPLATE, PROJECT_SETTINGS_FILE ] do
-	template = ERB.new( LICENSE_TEMPLATE.read, nil, '<>' )
-	settings = YAML.load_file( PROJECT_SETTINGS_FILE )
-
-	output = template.result( binding() )
-	LICENSE.open( File::WRONLY|File::CREAT|File::TRUNC ) do |fh|
-		fh.print output
-	end
+file LICENSE.to_s => [ LICENSE_TEMPLATE, PROJECT_SETTINGS_FILE ] do
+	generate_file_from_template( LICENSE, LICENSE_TEMPLATE )
 end
 
 
 ### Task: Build a README file
 desc "Generate a new project README file in the current directory"
 task README.to_s => [ README_TEMPLATE, PROJECT_SETTINGS_FILE ] do
-	template = ERB.new( README_TEMPLATE.read, nil, '<>' )
-	settings = YAML.load_file( PROJECT_SETTINGS_FILE )
-
-	output = template.result( binding() )
-	README.open( File::WRONLY|File::CREAT|File::TRUNC ) do |fh|
-		fh.print output
-	end
+	generate_file_from_template( README, README_TEMPLATE )
 end
 
 
 ### File tasks
 file RAKEFILE_TEMPLATE.to_s
-file PROJECT_SETTINGS_FILE.to_s
-task PROJECT_SETTINGS_FILE.to_s => SETTINGS_QUESTIONS do
+file PROJECT_SETTINGS_FILE.to_s => SETTINGS_QUESTIONS do
 	defaults = {}
 	if PROJECT_SETTINGS_FILE.exist?
 		defaults = YAML.load_file( PROJECT_SETTINGS_FILE )
