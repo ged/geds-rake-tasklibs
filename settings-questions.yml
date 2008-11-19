@@ -11,6 +11,11 @@
     multiline: true
     post-process: "args.join(\"\n\")"
 
+- post_install_message:
+    prompt: Post-install message
+    multiline: true
+    post-process: "args.join(\"\n\")"
+
 - author_name: Your name
 - author_email: Your email address
 

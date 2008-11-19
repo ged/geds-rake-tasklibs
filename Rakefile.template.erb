@@ -194,6 +194,13 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	<%= line.chomp %>
 <% end %>
 	EOD
+<% if settings['post_install_message'] %>
+	gem.post_install_message = <<-EOD
+	<% for line in settings['post_install_message'] %>
+		<%= line.chomp %>
+	<% end %>
+	EOD
+<% end %>
 
 	gem.authors           = '<%= settings['author_name'] %>'
 	gem.email             = '<%= settings['author_email'] %>'
