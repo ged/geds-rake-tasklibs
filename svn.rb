@@ -318,7 +318,29 @@ def humanize_file_list( list )
 	
 	return listtext
 end
-	
+
+
+### Add the list of +pathnames+ to the svn:ignore list.
+def svn_ignore_files( *pathnames )
+	pathnames.flatten!
+
+	map = pathnames.inject({}) do |map,path|
+		map[ path.dirname ] ||= []
+		map[ path.dirname ] << path.basename
+		map
+	end
+
+	trace "Ignoring %d files in %d directories." % [ pathnames.length, map.length ]
+
+	map.each do |dir, files|
+		trace "  %s: %p" % [ dir, files ]
+		io = open( '|-' ) or exec 'svn', 'pg', 'svn:ignore', dir
+		ignorelist = io.read.strip
+		ignorelist << "\n" << files.join("\n")
+		system 'svn', 'ps', 'svn:ignore', ignorelist, dir
+	end
+end
+
 
 
 ###
@@ -478,11 +500,7 @@ namespace :svn do
 			end
 		
 			unless files_to_ignore.empty?
-				log "Adding %d file/s to the ignore list" % [ files_to_ignore.length ]
-				io = open( '|-' ) or exec 'svn', 'pg', 'svn:ignore'
-				ignorelist = io.read.strip
-				ignorelist << "\n" << files_to_ignore.join("\n")
-				system 'svn', 'ps', 'svn:ignore', ignorelist, '.'
+				svn_ignore_files( *files_to_ignore )
 			end
 		
 		end
