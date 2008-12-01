@@ -365,19 +365,6 @@ def find_pattern_in_file( regexp, file )
 end
 
 
-### Get a list of the file or files to run rspec on.
-def rspec_files
-	if ENV['class']
-		classname = ENV['class']
-		spec_file = SPECSDIR + "#{classname}_spec.rb"
-		raise "Can't find the spec file for the class '#{classname}'" unless spec_file.exist?
-		return [ spec_file ]
-	else
-		return SPEC_FILES
-	end
-end
-
-
 ### Invoke the user's editor on the given +filename+ and return the exit code
 ### from doing so.
 def edit( filename )
