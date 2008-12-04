@@ -6,7 +6,13 @@
 # * Michael Granger <ged@FaerieMUD.org>
 # 
 
-COVERAGE_MINIMUM = 85.0 unless defined?( COVERAGE_MINIMUM )
+unless defined?( COVERAGE_MINIMUM )
+	if ENV['COVVERAGE_MINIMUM']
+		COVERAGE_MINIMUM = Float( ENV['COVERAGE_MINIMUM'] )
+	else
+		COVERAGE_MINIMUM = 85.0 
+	end
+end
 SPEC_FILES       = [] unless defined?( SPEC_FILES )
 TEST_FILES       = [] unless defined?( TEST_FILES )
 
@@ -125,19 +131,19 @@ begin
 			task.rcov = true
 		end
 	end
-	unless TEST_FILES.empty?
-		require 'rcov/rcovtask'
+# 	unless TEST_FILES.empty?
+# 		require 'rcov/rcovtask'
 
-		Rcov::RcovTask.new do |task|
-			task.libs += [LIBDIR]
-			task.test_files = TEST_FILES
-			task.verbose = true
-			task.rcov_opts = RCOV_OPTS
-		end
-	end
+# 		Rcov::RcovTask.new do |task|
+# 			task.libs += [LIBDIR]
+# 			task.test_files = TEST_FILES
+# 			task.verbose = true
+# 			task.rcov_opts = RCOV_OPTS
+# 		end
+# 	end
 
 
-	task :rcov => [:coverage] do; end
+	task :rcov => :coverage
 
 	### Other coverage tasks
 	namespace :coverage do
@@ -170,9 +176,7 @@ begin
 		end
 	end
 
-	task :clobber_coverage do
-		rmtree( COVERAGE_TARGETDIR )
-	end
+	CLOBBER.include( COVERAGE_TARGETDIR )
 
 rescue LoadError => err
 	task :no_rcov do

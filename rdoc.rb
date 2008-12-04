@@ -11,8 +11,7 @@ DOCSLIB = DOCSDIR + 'lib'
 $LOAD_PATH.unshift( DOCSLIB.to_s ) if DOCSLIB.exist?
 
 unless Gem.loaded_specs.key?( 'darkfish-rdoc' )
-	log "No DarkFish: %s: %s" % [ err.class.name, err.message ]
-	trace "Backtrace:\n  %s" % [ err.backtrace.join("\n  ") ]
+	trace "Darkfish gem not available."
 end
 
 Rake::RDocTask.new do |rdoc|
