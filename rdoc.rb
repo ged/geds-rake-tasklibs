@@ -10,16 +10,7 @@ $have_darkfish = false
 DOCSLIB = DOCSDIR + 'lib'
 $LOAD_PATH.unshift( DOCSLIB.to_s ) if DOCSLIB.exist?
 
-begin
-	require 'darkfish-rdoc'
-	$have_darkfish = true
-rescue LoadError => err
-	unless Object.const_defined?( :Gem )
-		require 'rubygems'
-		gem 'darkfish-rdoc'
-		retry
-	end
-	
+unless Gem.loaded_specs.key?( 'darkfish-rdoc' )
 	log "No DarkFish: %s: %s" % [ err.class.name, err.message ]
 	trace "Backtrace:\n  %s" % [ err.backtrace.join("\n  ") ]
 end
