@@ -145,8 +145,8 @@ SMTP_HOST = 'mail.faeriemud.org'
 SMTP_PORT = 465 # SMTP + SSL
 
 # Project constants
-PROJECT_HOST = 'deveiate.org'
-PROJECT_PUBDIR = "/usr/local/www/public/code"
+PROJECT_HOST = '<%= settings['project_pubhost'] %>'
+PROJECT_PUBDIR = '<%= settings['project_pubdir'] %>'
 PROJECT_DOCDIR = "#{PROJECT_PUBDIR}/#{PKG_NAME}"
 PROJECT_SCPPUBURL = "#{PROJECT_HOST}:#{PROJECT_PUBDIR}"
 PROJECT_SCPDOCURL = "#{PROJECT_HOST}:#{PROJECT_DOCDIR}"
@@ -204,9 +204,9 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	EOD
 <% if settings['post_install_message'] && settings['post_install_message'] =~ /\S/ %>
 	gem.post_install_message = <<-EOD
-	<% for line in settings['post_install_message'] %>
-		<%= line.chomp %>
-	<% end %>
+<% for line in settings['post_install_message'] %>
+	<%= line.chomp %>
+<% end %>
 	EOD
 <% end %>
 
@@ -217,8 +217,11 @@ GEMSPEC   = Gem::Specification.new do |gem|
 
 	gem.has_rdoc          = true
 	gem.rdoc_options      = RDOC_OPTIONS
+	gem.extra_rdoc_files  = %w[ChangeLog README LICENSE]
 
 	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
+	gem.executables       = BIN_FILES.select {|pn| pn.executable? }.
+		collect {|pn| pn.relative_path_from(BINDIR).to_s }
 
 	if EXTCONF.exist?
 		gem.extensions << EXTCONF.relative_path_from( BASEDIR ).to_s

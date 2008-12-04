@@ -10,6 +10,8 @@
     prompt: Project description
     multiline: true
     post-process: "args.join(\"\n\")"
+- project_pubhost: Project publication host
+- project_pubdir: Project publication directory
 
 - post_install_message:
     prompt: Post-install message
