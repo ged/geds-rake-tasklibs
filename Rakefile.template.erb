@@ -197,17 +197,17 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.version           = PKG_VERSION
 
 	gem.summary           = PKG_SUMMARY
-	gem.description       = <<-EOD
+	gem.description       = [
 <% for line in settings['project_description'] %>
-	<%= line.chomp %>
+		"<%= line.chomp %>",
 <% end %>
-	EOD
+  	  ].join( "\n" )
 <% if settings['post_install_message'] && settings['post_install_message'] =~ /\S/ %>
-	gem.post_install_message = <<-EOD
+	gem.post_install_message = [
 <% for line in settings['post_install_message'] %>
-	<%= line.chomp %>
+		"<%= line.chomp %>",
 <% end %>
-	EOD
+	  ].join( "\n" )
 <% end %>
 
 	gem.authors           = '<%= settings['author_name'] %>'
