@@ -253,7 +253,7 @@ def prompt_with_default( prompt_string, default, failure_msg="Try again." )
 		response = prompt( "%s [%s]" % [ prompt_string, default ] )
 		response = default.to_s if !response.nil? && response.empty? 
 
-		trace "Validating reponse %p" % [ response ]
+		trace "Validating response %p" % [ response ]
 
 		# the block is a validator.  We need to make sure that the user didn't
 		# enter '~', because if they did, it's nil and we should move on.  If

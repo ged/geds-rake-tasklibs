@@ -310,8 +310,8 @@ end
 
 
 ### Returns a human-scannable file list by joining and truncating the list if it's too long.
-def humanize_file_list( list )
-	listtext = list[0..5].join( "\n#{FILE_INDENT}" )
+def humanize_file_list( list, indent=FILE_INDENT )
+	listtext = list[0..5].join( "\n#{indent}" )
 	if list.length > 5
 		listtext << " (and %d other/s)" % [ list.length - 5 ]
 	end
@@ -338,6 +338,18 @@ def svn_ignore_files( *pathnames )
 		ignorelist = io.read.strip
 		ignorelist << "\n" << files.join("\n")
 		system 'svn', 'ps', 'svn:ignore', ignorelist, dir
+	end
+end
+
+
+### Delete the files in the given +filelist+ after confirming with the user.
+def delete_extra_files( filelist )
+	description = humanize_file_list( filelist, '  ' )
+	log "Files to delete:\n ", description
+	ask_for_confirmation( "Really delete them?", false ) do
+		filelist.each do |f|
+			rm_rf( f, :verbose => true )
+		end
 	end
 end
 
@@ -484,14 +496,17 @@ namespace :svn do
 		unless entries.empty?
 			files_to_add = []
 			files_to_ignore = []
+			files_to_delete = []
 
 			entries.find_all {|entry| entry[0] == '?'}.each do |entry|
-				action = prompt_with_default( "  #{entry[1]}: (a)dd, (i)gnore, (s)kip", 's' )
+				action = prompt_with_default( "  #{entry[1]}: (a)dd, (i)gnore, (s)kip (d)elete", 's' )
 				case action
 				when 'a'
 					files_to_add << entry[1]
 				when 'i'
 					files_to_ignore << entry[1]
+				when 'd'
+					files_to_delete << entry[1]
 				end
 			end
 			
@@ -502,7 +517,10 @@ namespace :svn do
 			unless files_to_ignore.empty?
 				svn_ignore_files( *files_to_ignore )
 			end
-		
+
+			unless files_to_delete.empty?
+				delete_extra_files( files_to_delete )
+			end
 		end
 	end
 	task :add => :newfiles
