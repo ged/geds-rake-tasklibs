@@ -137,7 +137,7 @@ RDOC_OPTIONS = [
 	'-SHN',
 	'-i', '.',
 	'-m', 'README',
-	'-o', RDOCDIR.to_s,
+	'-t', PKG_NAME,
 	'-W', '<%= settings['project_homepage'].chomp('/') %>/browser/trunk/'
   ]
 

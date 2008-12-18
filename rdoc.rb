@@ -34,7 +34,8 @@ task :rdoc => [ Rake.application.rakefile, *DOCFILES ] do
 	args += [ '-o', RDOCDIR.to_s ]
 	args += [ '-f', 'darkfish' ] if $have_darkfish
 	args += DOCFILES.collect {|pn| pn.to_s }
-	
+
+	trace "Building docs with arguments: %s" % [ args.join(' ') ]
 	RDoc::RDoc.new.document( args ) rescue nil
 end
 
