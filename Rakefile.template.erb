@@ -137,7 +137,8 @@ RDOC_OPTIONS = [
 	'-SHN',
 	'-i', '.',
 	'-m', 'README',
-	'-W', '<%= settings['project_homepage'] %>/browser/trunk/'
+	'-o', RDOCDIR.to_s,
+	'-W', '<%= settings['project_homepage'].chomp('/') %>/browser/trunk/'
   ]
 
 # Release constants

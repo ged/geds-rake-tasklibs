@@ -3,23 +3,44 @@
 # $Id$
 # 
 
-require 'rake/rdoctask'
-$have_darkfish = false
+gem 'rdoc'
+
+require 'rdoc/rdoc'
+require 'rake/clean'
+
+
+if RDoc::RDoc::GENERATORS.key?( 'darkfish' )
+	$have_darkfish = true
+else
+	trace "No darkfish generator."
+	$have_darkfish = false
+end
+
 
 # Append docs/lib to the load path if it exists for a locally-installed Darkfish
 DOCSLIB = DOCSDIR + 'lib'
 $LOAD_PATH.unshift( DOCSLIB.to_s ) if DOCSLIB.exist?
 
-unless Gem.loaded_specs.key?( 'darkfish-rdoc' )
-	trace "Darkfish gem not available."
+# Make relative string paths of all the stuff we need to generate docs for
+DOCFILES = LIB_FILES + EXT_FILES + GEMSPEC.extra_rdoc_files
+
+
+directory RDOCDIR.to_s
+CLOBBER.include( RDOCDIR )
+
+desc "Build API documentation in #{RDOCDIR}"
+task :rdoc => [ Rake.application.rakefile, *DOCFILES ] do
+	args = RDOC_OPTIONS 
+	args += [ '-o', RDOCDIR.to_s ]
+	args += [ '-f', 'darkfish' ] if $have_darkfish
+	args += DOCFILES.collect {|pn| pn.to_s }
+	
+	RDoc::RDoc.new.document( args ) rescue nil
 end
 
-Rake::RDocTask.new do |rdoc|
-	rdoc.rdoc_dir = RDOCDIR.expand_path.relative_path_from( Pathname.pwd ).to_s
-	rdoc.title    = "#{PKG_NAME} - #{PKG_SUMMARY}"
-	rdoc.options += RDOC_OPTIONS + [ '-f', 'darkfish' ] if $have_darkfish
-
-	rdoc.rdoc_files.include 'README'
-	rdoc.rdoc_files.include LIB_FILES.collect {|f| f.to_s }
-	rdoc.rdoc_files.include EXT_FILES.collect {|f| f.to_s }
+desc "Rebuild API documentation in #{RDOCDIR}"
+task :rerdoc do
+	rm_r( RDOCDIR ) if RDOCDIR.exist?
+	Rake::Task[ :rdoc ].invoke
 end
+
