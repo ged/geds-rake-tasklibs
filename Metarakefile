@@ -10,6 +10,7 @@ require 'pathname'
 require 'erb'
 require 'etc'
 require 'yaml'
+require 'uri'
 
 require 'rake/rdoctask'
 require 'rake/testtask'
