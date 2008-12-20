@@ -40,6 +40,8 @@ end
 ### RSpec specifications
 begin
 	gem 'rspec', '>= 1.1.3'
+
+	require 'spec'
 	require 'spec/rake/spectask'
 
 	### Task: spec
@@ -119,8 +121,10 @@ begin
 	gem 'rcov'
 	gem 'rspec', '>= 1.1.3'
 
+	require 'spec'
+	require 'rcov'
+
 	### Task: coverage (via RCov)
-	### Task: rcov
 	desc "Build test coverage reports"
 	unless SPEC_FILES.empty?
 		Spec::Rake::SpecTask.new( :coverage ) do |task|
@@ -143,6 +147,7 @@ begin
 # 	end
 
 
+	### Task: rcov
 	task :rcov => :coverage
 
 	### Other coverage tasks
