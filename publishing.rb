@@ -100,10 +100,10 @@ begin
 
 
 	namespace :release do
-		task :default => [ 'svn:release', :publish, :announce, :project ]
+		task :default => [ 'svn:release', :upload, :publish, :announce ]
 
 		desc "Re-publish the release with the current version number"
-		task :rerelease => [ :publish, :announce, :project ]
+		task :rerelease => [  :upload, :publish, :announce ]
 
 		desc "Re-run the publication tasks, but send notifications to debugging address"
 		task :test do
@@ -132,9 +132,10 @@ begin
 		CLOBBER.include( RELEASE_NOTES_FILE )
 		
 		
-		desc "Publish the project documentation to #{PROJECT_HOST}"
-		task :project => [ :rdoc ] do
+		desc "Upload project documentation and packages to #{PROJECT_HOST}"
+		task :upload => [ :rdoc ] do
 			when_writing( "Publishing docs to #{PROJECT_SCPDOCURL}" ) do
+				log "Uploading API documentation to %s:%s" % [ PROJECT_HOST, PROJECT_DOCDIR ]
 				run 'ssh', PROJECT_HOST, "rm -rf #{PROJECT_DOCDIR}"
 				run 'scp', '-qCr', RDOCDIR, PROJECT_SCPDOCURL
 			end
@@ -146,6 +147,7 @@ begin
                 end
             end
 		end
+		task :project => :upload # the old name
 
 		
 		file RELEASE_ANNOUNCE_FILE => [RELEASE_NOTES_FILE] do |task|

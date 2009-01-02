@@ -3,7 +3,17 @@
 #####################################################################
 
 require 'pathname'
-require 'readline'
+
+begin
+	require 'readline'
+	include Readline
+rescue LoadError
+	# Fall back to a plain prompt
+	def readline( text )
+		$stderr.print( text.chomp )
+		return $stdin.gets
+	end
+end
 
 # Set some ANSI escape code constants (Shamelessly stolen from Perl's
 # Term::ANSIColor by Russ Allbery <rra@stanford.edu> and Zenin <zenin@best.com>
@@ -229,7 +239,7 @@ def prompt( prompt_string, failure_msg="Try again." ) # :yields: response
 
 	begin
 		prompt = make_prompt_string( prompt_string )
-		response = Readline.readline( prompt ) || ''
+		response = readline( prompt ) || ''
 		response.strip!
 		if block_given? && ! yield( response ) 
 			error_message( failure_msg + "\n\n" )
@@ -280,7 +290,7 @@ def prompt_for_multiple_values( label, default=nil )
     result = nil
     
     begin
-        result = Readline.readline( make_prompt_string("> ") )
+        result = readline( make_prompt_string("> ") )
 		if result.nil? || result.empty?
 			results << default if default && results.empty?
 		else
