@@ -131,7 +131,7 @@ def download( sourceuri, targetfile=nil )
 	log "Downloading %s to %s" % [sourceuri, targetfile]
 	targetpath.open( File::WRONLY|File::TRUNC|File::CREAT, 0644 ) do |ofh|
 	
-		url = sourceuri.is_a?( URI ) ? sourceuri : URI.parse( sourceuri )
+		url = sourceuri.is_a?( URI ) ? sourceuri : URI( sourceuri )
 		downloaded = false
 		limit = 5
 		
@@ -149,7 +149,7 @@ def download( sourceuri, targetfile=nil )
 						puts "done."
 		
 					elsif res.is_a?( Net::HTTPRedirection )
-						url = URI.parse( res['location'] )
+						url = URI( res['location'] )
 						log "...following redirection to: %s" % [ url ]
 						limit -= 1
 						sleep 0.2

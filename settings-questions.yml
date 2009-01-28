@@ -3,7 +3,7 @@
 - project_name: Project name
 - project_homepage:
     prompt: URL of project page
-    validator: URI.parse( args.first )
+    validator: URI( args.first )
     stringify: true
 - project_summary: Project summary
 - project_description:

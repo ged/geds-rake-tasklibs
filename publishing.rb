@@ -133,12 +133,20 @@ begin
 		
 		
 		desc "Upload project documentation and packages to #{PROJECT_HOST}"
-		task :upload => [ :rdoc ] do
+		task :upload => [ :upload_docs, :upload_packages ]
+		task :project => :upload # the old name
+		
+		desc "Publish the project docs to #{PROJECT_HOST}"
+		task :upload_docs => [ :rdoc ] do
 			when_writing( "Publishing docs to #{PROJECT_SCPDOCURL}" ) do
 				log "Uploading API documentation to %s:%s" % [ PROJECT_HOST, PROJECT_DOCDIR ]
 				run 'ssh', PROJECT_HOST, "rm -rf #{PROJECT_DOCDIR}"
 				run 'scp', '-qCr', RDOCDIR, PROJECT_SCPDOCURL
 			end
+		end
+
+		desc "Publish the project packages to #{PROJECT_HOST}"
+		task :upload_packages => [ :package ] do
 			when_writing( "Uploading packages") do
 				pkgs = Pathname.glob( PKGDIR + "#{PKG_FILE_NAME}.{gem,tar.gz,tar.bz2,zip}" )
 				log "Uploading %d packages to #{PROJECT_SCPPUBURL}" % [ pkgs.length ]
@@ -147,9 +155,8 @@ begin
                 end
             end
 		end
-		task :project => :upload # the old name
 
-		
+
 		file RELEASE_ANNOUNCE_FILE => [RELEASE_NOTES_FILE] do |task|
 			relnotes = File.read( RELEASE_NOTES_FILE )
 			announce_body = %{
