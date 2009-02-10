@@ -1,5 +1,5 @@
 # 
-# RDoc Rake tasks for ThingFish
+# RDoc Rake tasks
 # $Id$
 # 
 

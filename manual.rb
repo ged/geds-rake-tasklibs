@@ -292,7 +292,7 @@ module Manual
 		# directory
 		attr_reader :uri_index
 		
-		# The hierarchy of pages in the catalog, suitable for generating an on-page
+		# The hierarchy of pages in the catalog, suitable for generating an on-page index
 		attr_reader :hierarchy
 		
 		# An Array of all Manual::Page objects found
@@ -356,21 +356,21 @@ module Manual
 					if page_or_section[INDEX_PATH]
 						idx = page_or_section[INDEX_PATH].config['index']
 						trace "Index page's index for directory '%s' is: %p" % [ subpath, idx ]
-						idx || subpath
+						idx.to_s || subpath.to_s
 					else
 						trace "Using the path for the sort of directory %p" % [ subpath ]
-						subpath
+						subpath.to_s
 					end
 					
 				# Page
 				else
 					if subpath == INDEX_PATH
 						trace "Sort index for index page %p is 0" % [ subpath ]
-						0
+						'0'
 					else
 						idx = page_or_section.config['index']
 						trace "Sort index for page %p is: %p" % [ subpath, idx ]
-						idx || subpath
+						idx.to_s || subpath.to_s
 					end
 				end
 
@@ -384,12 +384,14 @@ module Manual
 		### for an index section and call it, then recurse into the section contents.
 		def handle_section_callback( path, section, from=nil, &builder )
 			from_current = false
+			trace "Section handler: path=%p, section keys=%p, from=%s" %
+				[ path, section.keys, from.sourcefile ]
 			
 			# Call the callback with :section -- determine the section title from
 			# the 'index.page' file underneath it, or the directory name if no 
 			# index.page exists.
 			if section.key?( INDEX_PATH )
-				if section[INDEX_PATH] == from
+				if section[INDEX_PATH].sourcefile.dirname == from.sourcefile.dirname
 					from_current = true
 					builder.call( :current_section, section[INDEX_PATH].title, path )
 				else
@@ -563,7 +565,7 @@ module Manual
 				manual_pages = setup_page_conversion_tasks( sourcedir, outputdir, catalog )
 				
 				desc "Build the manual"
-				task :build => [ :rdoc, :copy_resources, :generate_pages ]
+				task :build => [ :rdoc, :copy_resources, :copy_apidocs, :generate_pages ]
 				
 				task :clobber do
 					RakeFileUtils.verbose( $verbose ) do
@@ -574,6 +576,25 @@ module Manual
 				
 				desc "Remove any previously-generated parts of the manual and rebuild it"
 				task :rebuild => [ :clobber, self.name ]
+				
+				desc "Watch for changes to the source files and rebuild when they change"
+				task :autobuild do
+					scope = [ self.name ]
+					loop do
+						t = Rake.application.lookup( :build, scope )
+						t.reenable
+						t.prerequisites.each do |pt|
+							if task = Rake.application.lookup( pt, scope )
+								task.reenable
+							else
+								trace "Hmmm... no %p task in scope %p?" % [ pt, scope ]
+							end
+						end
+						t.invoke
+						sleep 2
+						trace "  waking up..."
+					end
+				end
 	        end
 
 		end # def define
@@ -643,9 +664,10 @@ module Manual
 			target = task.name
 			
 			when_writing do
-				log "  #{source} -> #{target}"
-				mkpath File.dirname( target )
-				cp source, target, :verbose => $trace
+				trace "  #{source} -> #{target}"
+				mkpath File.dirname( target ), :verbose => $trace unless
+					File.directory?( File.dirname(target) )
+				install source, target, :mode => 0644, :verbose => $trace
 			end
 		end
 			
@@ -663,9 +685,16 @@ module Manual
 				file( targets[i] => [ outputdir.to_s, resource ], &copier )
 			end
 
+			desc "Copy API documentation to the manual output directory"
+			task :copy_apidocs => :rdoc do
+				cp_r( RDOCDIR, outputdir )
+			end
+
 			# Now group all the resource file tasks into a containing task
 			desc "Copy manual resources to the output directory"
-			task :copy_resources => targets
+			task :copy_resources => targets do
+				log "Copying manual resources"
+			end
 		end
 		
 	end # class Manual::GenTask
