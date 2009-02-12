@@ -25,9 +25,9 @@ DEFAULT_KEYWORDS = %w[Date Rev Author URL Id]
 KEYWORDED_FILEDIRS = %w[applets spec bin etc ext experiments examples lib misc docs]
 KEYWORDED_FILEPATTERN = /
 	^(?:
-		(?:meta)?rakefile.*							# Rakefiles
+		(?:meta)?rakefile.*									# Rakefiles
 		|
-		.*\.(?:rb|c|h|js|html|css|template|erb)		# Source file extensions
+		.*\.(?:rb|c|h|js|html|css|template|erb|page)		# Source file extensions
 		|
 		readme|install|todo
 	)$/ix
