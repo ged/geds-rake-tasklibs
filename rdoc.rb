@@ -3,8 +3,6 @@
 # $Id$
 # 
 
-gem 'rdoc'
-
 require 'rdoc/rdoc'
 require 'rake/clean'
 

@@ -6,9 +6,6 @@
 # * Michael Granger <ged@FaerieMUD.org>
 # 
 
-require 'rubygems'
-gem 'rake', '>= 0.8.3'
-
 require 'pp'
 require 'yaml'
 require 'date'
@@ -532,7 +529,7 @@ namespace :svn do
 	desc "Check in all the changes in your current working copy"
 	task :checkin => ['svn:update', 'svn:newfiles', 'test', 'svn:fix_keywords', COMMIT_MSG_FILE] do
 		targets = get_target_args()
-		$deferr.puts '---', File.read( COMMIT_MSG_FILE ), '---'
+		$stderr.puts '---', File.read( COMMIT_MSG_FILE ), '---'
 		ask_for_confirmation( "Continue with checkin?" ) do
 			run 'svn', 'ci', '-F', COMMIT_MSG_FILE, targets
 			rm_f COMMIT_MSG_FILE
@@ -565,7 +562,7 @@ namespace :svn do
 		end
 		
 		unless files_needing_fixups.empty?
-			$deferr.puts "Files needing keyword fixes: ",
+			$stderr.puts "Files needing keyword fixes: ",
 				files_needing_fixups.collect {|f|
 					"  %s: %s" % [f, kwmap[f] ? kwmap[f].join(' ') : "(no keywords)"]
 				}
