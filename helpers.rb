@@ -125,43 +125,26 @@ end
 def download( sourceuri, targetfile=nil )
 	oldsync = $defout.sync
 	$defout.sync = true
-	require 'net/http'
-	require 'uri'
+	require 'open-uri'
 
 	targetpath = Pathname.new( targetfile )
 
 	log "Downloading %s to %s" % [sourceuri, targetfile]
-	targetpath.open( File::WRONLY|File::TRUNC|File::CREAT, 0644 ) do |ofh|
-	
-		url = sourceuri.is_a?( URI ) ? sourceuri : URI( sourceuri )
-		downloaded = false
-		limit = 5
+	trace "  connecting..."
+	ifh = open( sourceuri ) do |ifh|
+		trace "  connected..."
+		targetpath.open( File::WRONLY|File::TRUNC|File::CREAT, 0644 ) do |ofh|
+			log "Downloading..."
+			buf = ''
 		
-		until downloaded or limit.zero?
-			Net::HTTP.start( url.host, url.port ) do |http|
-				req = Net::HTTP::Get.new( url.path )
-
-				http.request( req ) do |res|
-					if res.is_a?( Net::HTTPSuccess )
-						log "Downloading..."
-						res.read_body do |buf|
-							ofh.print( buf )
-						end
-						downloaded = true
-						puts "done."
-		
-					elsif res.is_a?( Net::HTTPRedirection )
-						url = URI( res['location'] )
-						log "...following redirection to: %s" % [ url ]
-						limit -= 1
-						sleep 0.2
-						next
-				
-					else
-						res.error!
-					end
+			while ifh.read( 16384, buf )
+				until buf.empty?
+					bytes = ofh.write( buf )
+					buf.slice!( 0, bytes )
 				end
 			end
+			
+			log "Done."
 		end
 		
 	end
