@@ -15,11 +15,14 @@
 
 require 'rake'
 require 'pathname'
+require 'rubygems/platform'
 require 'rbconfig'
 
 HOMEDIR        = Pathname( '~' ).expand_path
 RUBYVERSION    = '1.8.6-p287'
-RUBY_DL_BASE   = 'ftp://ftp.ruby-lang.org/pub/ruby/1.8/'
+RUBYVERSION_MAJORMINOR = RUBYVERSION[/^\d+\.\d+/]
+
+RUBY_DL_BASE   = "ftp://ftp.ruby-lang.org/pub/ruby/#{RUBYVERSION_MAJORMINOR}/"
 RUBY_DL_URI    = RUBY_DL_BASE + "ruby-#{RUBYVERSION}.tar.gz"
 
 XCOMPILER_DIR  = HOMEDIR + '.ruby_mingw32'
@@ -28,9 +31,18 @@ XCOMPILER_DL   = XCOMPILER_DIR + "ruby-#{RUBYVERSION}.tar.gz"
 XCOMPILER_SRC  = XCOMPILER_DIR + "ruby-#{RUBYVERSION}"
 
 XCOMPILER_BIN  = XCOMPILER_DIR + 'bin'
+XCOMPILER_LIB  = XCOMPILER_DIR + 'lib'
 XCOMPILER_RUBY = XCOMPILER_BIN + 'ruby.exe'
 
+XCOMPILER_LOAD_PATH = XCOMPILER_LIB + "ruby/#{RUBYVERSION_MAJORMINOR}/i386-mingw32"
+
 TAR_OPTS = { :compression => :gzip }
+
+WIN32_GEMSPEC = GEMSPEC.dup
+WIN32_GEMSPEC.files += Dir[ EXTDIR + '**.{dll,so}' ]
+WIN32_GEMSPEC.platform = Gem::Platform.new( 'i386-mingw32' )
+WIN32_GEMSPEC.extensions = []
+
 
 CONFIGURE_CMD = %W[
 	env
@@ -42,7 +54,7 @@ CONFIGURE_CMD = %W[
     ./configure
 	    --host=i386-mingw32
 	    --target=i386-mingw32
-	    --build=#{Config::CONFIG['host']}
+	    --build=#{Gem::Platform.local}
 	    --prefix=#{XCOMPILER_DIR}
 ]
 
@@ -129,10 +141,22 @@ begin
 			end
 		end
 
-		desc "Build a binary Gem for Win32 systems, installing a cross " +
+		file XCOMPILER_LOAD_PATH => XCOMPILER_RUBY
+
+		desc "Cross-compile the library for Win32 systems, installing a cross-" +
 		     "compiled Ruby if necessary"
-		task :build => XCOMPILER_RUBY do
-			log "Building..."
+		task :build => [ EXTDIR, XCOMPILER_LOAD_PATH.to_s ] do
+			in_subdirectory( EXTDIR ) do
+				ruby "-I#{XCOMPILER_LOAD_PATH}", 'extconf.rb'
+				sh 'make'
+			end
+		end
+		
+		desc "Build a binary gem for win32 systems"
+		task :gem => [PKGDIR.to_s] + WIN32_GEMSPEC.files do
+			when_writing( "Creating win32 GEM" ) do
+				Gem::Builder.new( WIN32_GEMSPEC ).build
+			end
 		end
 	end
 
