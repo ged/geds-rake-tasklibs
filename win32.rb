@@ -39,7 +39,7 @@ XCOMPILER_LOAD_PATH = XCOMPILER_LIB + "ruby/#{RUBYVERSION_MAJORMINOR}/i386-mingw
 TAR_OPTS = { :compression => :gzip }
 
 WIN32_GEMSPEC = GEMSPEC.dup
-WIN32_GEMSPEC.files += Dir[ EXTDIR + '**.{dll,so}' ]
+WIN32_GEMSPEC.files += FileList[ EXTDIR + '**.{dll,so}' ]
 WIN32_GEMSPEC.platform = Gem::Platform.new( 'i386-mingw32' )
 WIN32_GEMSPEC.extensions = []
 
@@ -153,9 +153,12 @@ begin
 		end
 		
 		desc "Build a binary gem for win32 systems"
-		task :gem => [PKGDIR.to_s] + WIN32_GEMSPEC.files do
+		task :gem => ['win32:build', PKGDIR.to_s] + WIN32_GEMSPEC.files do
 			when_writing( "Creating win32 GEM" ) do
-				Gem::Builder.new( WIN32_GEMSPEC ).build
+				pkgname = WIN32_GEMSPEC.file_name
+				builder = Gem::Builder.new( WIN32_GEMSPEC )
+				builder.build
+				mv pkgname, PKGDIR + pkgname, :verbose => $trace
 			end
 		end
 	end
