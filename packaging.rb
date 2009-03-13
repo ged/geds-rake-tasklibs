@@ -38,7 +38,7 @@ end
 
 ### Task: install
 desc "Install #{PKG_NAME} as a conventional library"
-task :install do
+task :install => "spec:quiet" do
 	log "Installing #{PKG_NAME} as a conventional library"
 	sitelib = Pathname.new( CONFIG['sitelibdir'] )
 	sitearch = Pathname.new( CONFIG['sitearchdir'] )
@@ -53,8 +53,10 @@ task :install do
 		end
 	end
 	if EXTDIR.exist?
+		trace "  looking for a binary extension (%s)" % [ EXTDIR + "*.#{Config::CONFIG['DLEXT']}" ]
 		Dir.chdir( EXTDIR ) do
-			Pathname.glob( EXTDIR + Config::CONFIG['DLEXT'] ) do |dl|
+			Pathname.glob( "*.#{Config::CONFIG['DLEXT']}" ) do |dl|
+				trace "    found: #{dl}"
 				target = sitearch + dl.basename
 				FileUtils.install dl, target, 
 					:mode => 0755, :verbose => true, :noop => $dryrun
@@ -91,8 +93,10 @@ task :uninstall do
 		end
 	end
 	if EXTDIR.exist?
+		trace "  looking for a binary extension (%s)" % [ EXTDIR + "*.#{Config::CONFIG['DLEXT']}" ]
 		Dir.chdir( EXTDIR ) do
-			Pathname.glob( EXTDIR + Config::CONFIG['DLEXT'] ) do |dl|
+			Pathname.glob( "*.#{Config::CONFIG['DLEXT']}" ) do |dl|
+				trace "    found: #{dl}"
 				target = sitearch + dl.basename
 				FileUtils.rm target, :verbose => true, :noop => $dryrun
 			end
