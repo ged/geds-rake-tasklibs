@@ -3,16 +3,11 @@
 # $Id$
 # 
 
+gem 'rdoc', '>= 2.4.1'
+
+require 'rubygems'
 require 'rdoc/rdoc'
 require 'rake/clean'
-
-
-if RDoc::RDoc::GENERATORS.key?( 'darkfish' )
-	$have_darkfish = true
-else
-	trace "No darkfish generator."
-	$have_darkfish = false
-end
 
 
 # Append docs/lib to the load path if it exists for a locally-installed Darkfish
@@ -30,7 +25,7 @@ desc "Build API documentation in #{RDOCDIR}"
 task :rdoc => [ Rake.application.rakefile, *DOCFILES ] do
 	args = RDOC_OPTIONS 
 	args += [ '-o', RDOCDIR.to_s ]
-	args += [ '-f', 'darkfish' ] if $have_darkfish
+	args += [ '-f', 'darkfish' ]
 	args += DOCFILES.collect {|pn| pn.to_s }
 
 	trace "Building docs with arguments: %s" % [ args.join(' ') ]

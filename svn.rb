@@ -55,7 +55,7 @@ end
 ### a hash.
 def get_svn_info( dir='.' )
 	return {} unless File.directory?( File.join(dir, '.svn') )
-	info = IO.read( '|-' ) or exec 'svn', 'info', dir
+	info = IO.read( '|-' ) or exec 'svn', 'info', dir.to_s
 	return YAML.load( info ) # 'svn info' outputs valid YAML! Yay!
 rescue NotImplementedError
 	trace "No fork(), proceeding without svn info..."

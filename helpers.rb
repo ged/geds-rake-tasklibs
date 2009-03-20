@@ -5,6 +5,8 @@
 
 
 require 'pathname'
+require 'uri'
+require 'open3'
 
 begin
 	require 'readline'
@@ -357,6 +359,26 @@ def find_pattern_in_file( regexp, file )
 	end
 
 	return rval
+end
+
+
+### Search line-by-line in the output of the specified +cmd+ for the given +regexp+,
+### returning the first match, or nil if no match was found. If the +regexp+ has any 
+### capture groups, those will be returned in an Array, else the whole matching line
+### is returned.
+def find_pattern_in_pipe( regexp, *cmd )
+	output = []
+	
+	log( cmd.collect {|part| part =~ /\s/ ? part.inspect : part} ) 
+	Open3.popen3( *cmd ) do |stdin, stdout, stderr|
+		stdin.close
+
+		output << stdout.gets until stdout.eof?
+		output << stderr.gets until stderr.eof?
+	end
+	
+	result = output.find { |line| regexp.match(line) } 
+	return $1 || result
 end
 
 

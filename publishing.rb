@@ -243,51 +243,55 @@ begin
 		task :publish => [:clean, :package, :notes] do |task|
 			project = GEMSPEC.rubyforge_project
 
-			rf = RubyForge.new
-			log "Loading RubyForge config"
-			rf.configure
-
-			group_id = rf.autoconfig['group_ids'][RUBYFORGE_GROUP] or
-				fail "Your configuration doesn't have a group id for '#{RUBYFORGE_GROUP}'"
-
-			# If this project doesn't yet exist, create it
-			unless rf.autoconfig['package_ids'].key?( project )
-				ask_for_confirmation( "Package '#{project}' doesn't exist on RubyForge. Create it?" ) do
-					log "Creating new package '#{project}'"
-					rf.create_package( group_id, project )
-				end
-			end
-			
-			package_id = rf.autoconfig['package_ids'][ project ]
-     
-			# Make sure this release doesn't already exist
-			releases = rf.autoconfig['release_ids']
-			if releases.key?( GEMSPEC.name ) && releases[ GEMSPEC.name ].key?( PKG_VERSION )
-				log "Rubyforge seems to already have #{ PKG_FILE_NAME }"
+			if $publish_privately
+				log "Skipping push of release files to RubyForge"
 			else
-				config = rf.userconfig or
-					fail "You apparently haven't set up your RubyForge credentials on this machine."
-				config['release_notes'] = GEMSPEC.description
-				config['release_changes'] = File.read( RELEASE_NOTES_FILE )
+				rf = RubyForge.new
+				log "Loading RubyForge config"
+				rf.configure
 
-				files = FileList[ PKGDIR + GEM_FILE_NAME ]
-				files.include PKGDIR + "#{PKG_FILE_NAME}.tar.gz"
-				files.include PKGDIR + "#{PKG_FILE_NAME}.tar.bz2"
-				files.include PKGDIR + "#{PKG_FILE_NAME}.zip"
+				group_id = rf.autoconfig['group_ids'][RUBYFORGE_GROUP] or
+					fail "Your configuration doesn't have a group id for '#{RUBYFORGE_GROUP}'"
 
-				log "Releasing #{PKG_FILE_NAME}"
-				when_writing do
-					log "Publishing to RubyForge: \n",
-						"\tproject: #{RUBYFORGE_GROUP}\n",
-						"\tpackage: #{PKG_NAME.downcase}\n",
-						"\tpackage version: #{PKG_VERSION}\n",
-						"\tfiles: " + files.collect {|f| f.to_s }.join(', ') + "\n"
+				# If this project doesn't yet exist, create it
+				unless rf.autoconfig['package_ids'].key?( project )
+					ask_for_confirmation( "Package '#{project}' doesn't exist on RubyForge. Create it?" ) do
+						log "Creating new package '#{project}'"
+						rf.create_package( group_id, project )
+					end
+				end
+			
+				package_id = rf.autoconfig['package_ids'][ project ]
+     
+				# Make sure this release doesn't already exist
+				releases = rf.autoconfig['release_ids']
+				if releases.key?( GEMSPEC.name ) && releases[ GEMSPEC.name ].key?( PKG_VERSION )
+					log "Rubyforge seems to already have #{ PKG_FILE_NAME }"
+				else
+					config = rf.userconfig or
+						fail "You apparently haven't set up your RubyForge credentials on this machine."
+					config['release_notes'] = GEMSPEC.description
+					config['release_changes'] = File.read( RELEASE_NOTES_FILE )
 
-					ask_for_confirmation( "Publish to RubyForge?" ) do
-						log 'Logging in...'
-						rf.login
-						log "Adding the new release to the '#{project}' project"
-						rf.add_release( group_id, package_id, PKG_VERSION, *files )
+					files = FileList[ PKGDIR + GEM_FILE_NAME ]
+					files.include PKGDIR + "#{PKG_FILE_NAME}.tar.gz"
+					files.include PKGDIR + "#{PKG_FILE_NAME}.tar.bz2"
+					files.include PKGDIR + "#{PKG_FILE_NAME}.zip"
+
+					log "Releasing #{PKG_FILE_NAME}"
+					when_writing do
+						log "Publishing to RubyForge: \n",
+							"\tproject: #{RUBYFORGE_GROUP}\n",
+							"\tpackage: #{PKG_NAME.downcase}\n",
+							"\tpackage version: #{PKG_VERSION}\n",
+							"\tfiles: " + files.collect {|f| f.to_s }.join(', ') + "\n"
+
+						ask_for_confirmation( "Publish to RubyForge?" ) do
+							log 'Logging in...'
+							rf.login
+							log "Adding the new release to the '#{project}' project"
+							rf.add_release( group_id, package_id, PKG_VERSION, *files )
+						end
 					end
 				end
 			end
