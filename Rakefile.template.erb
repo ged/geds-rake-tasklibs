@@ -310,7 +310,7 @@ end
 desc "Cruisecontrol build"
 task :cruise => [:clean, 'spec:quiet', :package] do |task|
 	raise "Artifacts dir not set." if ARTIFACTS_DIR.to_s.empty?
-	artifact_dir = ARTIFACTS_DIR.cleanpath + ENV['CC_BUILD_LABEL']
+	artifact_dir = ARTIFACTS_DIR.cleanpath + (ENV['CC_BUILD_LABEL'] || '0')
 	artifact_dir.mkpath
 	
 	coverage = BASEDIR + 'coverage'
