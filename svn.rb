@@ -10,6 +10,7 @@ require 'pp'
 require 'yaml'
 require 'date'
 require 'time'
+require 'abbrev'
 
 # Strftime format for tags/releases
 TAG_TIMESTAMP_FORMAT = '%Y%m%d-%H%M%S'
@@ -201,6 +202,15 @@ def get_latest_release_tag
 	return nil if tags.empty?
 
 	return releaseurl + '/' + tags.last
+end
+
+
+### Return the names of all existing branches.
+def get_branch_names
+	rooturl     = get_svn_repo_root()
+	branchesurl = rooturl + "/#{SVN_BRANCHES_DIR}"
+	
+	return svn_ls( branchesurl )
 end
 
 
@@ -400,6 +410,33 @@ namespace :svn do
 			end
 		end
 	end
+	
+	
+	desc "Switch the working copy to the named branch"
+	task :switch, [:name] do |task, args|
+		branches = get_branch_names().collect {|name| name.chomp('/') }
+
+		unless args.name
+			log "Branches are:\n" + branches.collect {|br| "  #{br}" }.join( "\n" )
+			
+			begin
+				oldproc = Readline.completion_proc
+				abbrev = branches.abbrev 
+				Readline.completion_proc = lambda{|string| abbrev[string] }
+			
+				name = prompt( "Branch to switch to" ) or abort
+				args.with_defaults( :name => name )
+			ensure
+				Readline.completion_proc = oldproc unless oldproc.nil?
+			end
+		end
+
+		svninfo = get_svn_info()
+		abort "Branch '#{args.name}' does not exist" unless branches.include?( args.name )
+		branchuri = Pathname.new( svninfo['Repository Root'] ) + SVN_BRANCHES_DIR + args.name
+		run 'svn', 'sw', branchuri
+	end
+	task :sw => :switch
 	
 
 	desc "Switch to the trunk if the working copy isn't there already."

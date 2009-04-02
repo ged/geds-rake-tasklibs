@@ -719,9 +719,7 @@ if MANUALDIR.exist?
 			manual.source_dir = 'src'
 		end
 
-		task :clobber_manual do
-			rmtree( MANUALOUTPUTDIR, :verbose => true )
-		end
+		CLOBBER.include( MANUALOUTPUTDIR.to_s )
 
 	rescue LoadError => err
 		task :no_manual do
