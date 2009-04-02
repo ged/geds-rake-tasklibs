@@ -17,13 +17,15 @@ require 'rake'
 require 'pathname'
 require 'rubygems/platform'
 require 'rbconfig'
+require 'uri'
+require 'net/ftp'
 
 HOMEDIR        = Pathname( '~' ).expand_path
 RUBYVERSION    = '1.8.6-p287'
 RUBYVERSION_MAJORMINOR = RUBYVERSION[/^\d+\.\d+/]
 
 RUBY_DL_BASE   = "ftp://ftp.ruby-lang.org/pub/ruby/#{RUBYVERSION_MAJORMINOR}/"
-RUBY_DL_URI    = RUBY_DL_BASE + "ruby-#{RUBYVERSION}.tar.gz"
+RUBY_DL_URI    = URI( RUBY_DL_BASE + "ruby-#{RUBYVERSION}.tar.gz" )
 
 XCOMPILER_DIR  = HOMEDIR + '.ruby_mingw32'
 
@@ -106,7 +108,12 @@ begin
 		
 		file XCOMPILER_DL => XCOMPILER_DIR do
 			# openuri can't handle this -- passive ftp required?
-			run 'wget', '-O', XCOMPILER_DL, RUBY_DL_URI
+			# run 'wget', '-O', XCOMPILER_DL, RUBY_DL_URI
+			log "Downloading ruby distro from %s" % [ RUBY_DL_URI ]
+			ftp = Net::FTP.new( RUBY_DL_URI.host )
+			ftp.login
+			ftp.getbinaryfile( RUBY_DL_URI.path, XCOMPILER_DL, 4096 )
+			ftp.close
 		end
 
 		directory XCOMPILER_SRC.to_s
@@ -165,7 +172,7 @@ begin
 
 rescue LoadError => err
 	task :no_win32_build do
-		fatal "No win32 build: %s: %s" % [ err.class.name, err.message ]
+		abort "No win32 build: %s: %s" % [ err.class.name, err.message ]
 	end
 	
 	namespace :win32 do
