@@ -45,6 +45,7 @@ begin
 	require 'spec/rake/spectask'
 
 	### Task: spec
+	desc "Run specs"
 	task :spec => 'spec:doc'
 	specfiles = SPEC_FILES.collect {|pn| pn.to_s }
 
