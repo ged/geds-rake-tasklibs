@@ -125,8 +125,8 @@ end
 
 ### Download the file at +sourceuri+ via HTTP and write it to +targetfile+.
 def download( sourceuri, targetfile=nil )
-	oldsync = $defout.sync
-	$defout.sync = true
+	oldsync = $stdout.sync
+	$stdout.sync = true
 	require 'open-uri'
 
 	targetpath = Pathname.new( targetfile )
@@ -153,7 +153,7 @@ def download( sourceuri, targetfile=nil )
 	
 	return targetpath
 ensure
-	$defout.sync = oldsync
+	$stdout.sync = oldsync
 end
 
 

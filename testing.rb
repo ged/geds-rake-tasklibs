@@ -47,7 +47,6 @@ begin
 	### Task: spec
 	desc "Run specs"
 	task :spec => 'spec:doc'
-	specfiles = SPEC_FILES.collect {|pn| pn.to_s }
 
 	namespace :spec do
 		desc "Run rspec every time there's a change to one of the files"
@@ -60,25 +59,25 @@ begin
 
 		desc "Generate regular color 'doc' spec output"
 		Spec::Rake::SpecTask.new( :doc ) do |task|
-			task.spec_files = specfiles
+			task.spec_files = SPEC_FILES
 			task.spec_opts = COMMON_SPEC_OPTS + ['-f', 's', '-c']
 		end
 
 		desc "Generate spec output with profiling"
 		Spec::Rake::SpecTask.new( :profile ) do |task|
-			task.spec_files = specfiles
+			task.spec_files = SPEC_FILES
 			task.spec_opts = COMMON_SPEC_OPTS + ['-f', 'o']
 		end
 
 		desc "Generate quiet non-colored plain-text output"
 		Spec::Rake::SpecTask.new( :quiet ) do |task|
-			task.spec_files = specfiles
+			task.spec_files = SPEC_FILES
 			task.spec_opts = COMMON_SPEC_OPTS + ['-f', 'p']
 		end
 
 		desc "Generate HTML output"
 		Spec::Rake::SpecTask.new( :html ) do |task|
-			task.spec_files = specfiles
+			task.spec_files = SPEC_FILES
 			task.spec_opts = COMMON_SPEC_OPTS + ['-f', 'h']
 		end
 

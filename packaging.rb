@@ -16,8 +16,7 @@ Rake::PackageTask.new( PKG_NAME, PKG_VERSION ) do |task|
 	task.need_tar_bz2  = true
 	task.need_zip      = true
 	task.package_dir   = PKGDIR.to_s
-  	task.package_files = RELEASE_FILES.
-		collect {|f| f.relative_path_from(BASEDIR).to_s }
+  	task.package_files = RELEASE_FILES.collect {|f| f.to_s }
 end
 task :package => [:gem]
 
