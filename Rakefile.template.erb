@@ -72,8 +72,7 @@ DATA_FILES    = Pathname.glob( "#{DATADIR}/**/*" ).delete_if {|item| item.to_s =
 
 SPECDIR       = BASEDIR + 'spec'
 SPECLIBDIR    = SPECDIR + 'lib'
-SPEC_FILES    = Pathname.glob( "#{SPECDIR}/**/*_spec.rb" ).delete_if {|item| item.to_s =~ /\.svn/ } +
-                Pathname.glob( "#{SPECLIBDIR}/**/*.rb" ).delete_if {|item| item.to_s =~ /\.svn/ }
+SPEC_FILES    = Rake::FileList.new( "#{SPECDIR}/**/*_spec.rb", "#{SPECLIBDIR}/**/*.rb" )
 
 TESTDIR       = BASEDIR + 'tests'
 TEST_FILES    = Pathname.glob( "#{TESTDIR}/**/*.tests.rb" ).delete_if {|item| item.to_s =~ /\.svn/ }
