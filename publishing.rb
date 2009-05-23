@@ -26,8 +26,8 @@ class Net::SMTP
 			return self
 		end
 	end
-	
-	
+
+
 	#######
 	private
 	#######
@@ -111,7 +111,7 @@ begin
 			$publish_privately = true
 			Rake::Task['release:rerelease'].invoke
 		end
-		
+
 
 		desc "Generate the release notes"
 		task :notes => [RELEASE_NOTES_FILE]
@@ -130,12 +130,12 @@ begin
 			edit task.name
 		end
 		CLOBBER.include( RELEASE_NOTES_FILE )
-		
-		
+
+
 		desc "Upload project documentation and packages to #{PROJECT_HOST}"
 		task :upload => [ :upload_docs, :upload_packages ]
 		task :project => :upload # the old name
-		
+
 		desc "Publish the project docs to #{PROJECT_HOST}"
 		task :upload_docs => [ :rdoc ] do
 			when_writing( "Publishing docs to #{PROJECT_SCPDOCURL}" ) do
@@ -172,7 +172,7 @@ begin
 				== Installation
 
 				Via gems:
-				
+
 				  $ sudo gem install #{GEMSPEC.name}
 
 				or from source:
@@ -185,7 +185,7 @@ begin
 				== Changes
 				#{relnotes}
 			}.gsub( /^\t+/, '' )
-			
+
 			File.open( task.name, File::WRONLY|File::TRUNC|File::CREAT ) do |fh|
 				fh.print( announce_body )
 			end
@@ -193,8 +193,8 @@ begin
 			edit task.name
 		end
 		CLOBBER.include( RELEASE_ANNOUNCE_FILE )
-		
-		
+
+
 		desc 'Send out a release announcement'
 		task :announce => [RELEASE_ANNOUNCE_FILE] do
 			email         = TMail::Mail.new
@@ -217,13 +217,13 @@ begin
 			puts '---',
 			     email.to_s,
 			     '---'
-			
+
 				ask_for_confirmation( "Will send via #{SMTP_HOST}." ) do
 				pwent = Etc.getpwuid( Process.euid )
 				curuser = pwent ? pwent.name : 'unknown'
 				username = prompt_with_default( "SMTP user", curuser )
 				password = prompt_for_password()
-			
+
 				trace "Creating SMTP connection to #{SMTP_HOST}:#{SMTP_PORT}"
 				smtp = Net::SMTP.new( SMTP_HOST, SMTP_PORT )
 				smtp.set_debug_output( $stdout )
@@ -237,8 +237,8 @@ begin
 				trace "done."
 			end
 		end
-		
-	
+
+
 		desc 'Publish the new release to RubyForge'
 		task :publish => [:clean, :package, :notes] do |task|
 			project = GEMSPEC.rubyforge_project
@@ -260,9 +260,9 @@ begin
 						rf.create_package( group_id, project )
 					end
 				end
-			
+
 				package_id = rf.autoconfig['package_ids'][ project ]
-     
+
 				# Make sure this release doesn't already exist
 				releases = rf.autoconfig['release_ids']
 				if releases.key?( GEMSPEC.name ) && releases[ GEMSPEC.name ].key?( PKG_VERSION )
@@ -297,17 +297,17 @@ begin
 			end
 		end
 	end
-	
+
 rescue LoadError => err
 	if !Object.const_defined?( :Gem )
 		require 'rubygems'
 		retry
 	end
-	
+
 	task :no_release_tasks do
 		fail "Release tasks not defined: #{err.message}"
 	end
-	
+
 	task :release => :no_release_tasks
 	task "release:announce" => :no_release_tasks
 	task "release:publish" => :no_release_tasks

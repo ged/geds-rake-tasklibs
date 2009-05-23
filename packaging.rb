@@ -35,6 +35,24 @@ file gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
 	end
 end
 
+svnrev = get_svn_rev()
+prerelease_gem_file_name = "#{PKG_FILE_NAME}.#{svnrev}.gem"
+prerelease_gempath = PKGDIR + prerelease_gem_file_name
+
+desc "Build a pre-release RubyGem package"
+task :prerelease_gem => prerelease_gempath.to_s
+file prerelease_gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
+	when_writing( "Creating prerelease GEM" ) do
+		gemspec = GEMSPEC.clone
+		gemspec.version = Gem::Version.create( "%s.%d" % [GEMSPEC.version, svnrev] )
+		Gem::Builder.new( gemspec ).build
+		verbose( true ) do
+			mv prerelease_gem_file_name, prerelease_gempath
+		end
+	end
+end
+
+
 ### Task: install
 desc "Install #{PKG_NAME} as a conventional library"
 task :install => "spec:quiet" do
