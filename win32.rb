@@ -56,7 +56,7 @@ CONFIGURE_CMD = %W[
     ./configure
 	    --host=i386-mingw32
 	    --target=i386-mingw32
-	    --build=#{Gem::Platform.local}
+	    --build=#{Config::CONFIG['build']}
 	    --prefix=#{XCOMPILER_DIR}
 ]
 
@@ -144,7 +144,7 @@ begin
 				run *CONFIGURE_CMD
 				run 'make', 'ruby'
 				run 'make', 'rubyw.exe'
-				run 'make', '-n', 'install'
+				run 'make', 'install'
 			end
 		end
 
