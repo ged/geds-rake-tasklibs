@@ -392,14 +392,15 @@ namespace :svn do
 	desc "Copy the HEAD revision of the current #{SVN_TRUNK_DIR}/ to #{SVN_BRANCHES_DIR} with a " +
 	     "user-specified name."
 	task :branch, [:name] do |task, args|
-		unless args.name
-			args.name = prompt( "Branch name" ) or abort
+		branchname = args.name
+		unless branchname
+			branchname = prompt( "Branch name" ) or abort
 		end
 		
 		svninfo      = get_svn_info()
 		svntrunk     = Pathname.new( svninfo['Repository Root'] ) + SVN_TRUNK_DIR
 		svnbranchdir = Pathname.new( svninfo['Repository Root'] ) + SVN_BRANCHES_DIR
-		svnbranch    = svnbranchdir + args.name
+		svnbranch    = svnbranchdir + branchname
 
 		desc = "Making a new branch: #{svnbranch}"
 		ask_for_confirmation( desc ) do
