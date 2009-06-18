@@ -78,7 +78,7 @@ def run( *cmd )
 	else
 		trace( cmd )
 	end
-	
+
 	if $dryrun
 		$stderr.puts "(dry run mode)"
 	else
@@ -108,7 +108,7 @@ def pipeto( *cmd )
 		$stderr.puts "(dry run mode)"
 	else
 		open( '|-', 'w+' ) do |io|
-		
+
 			# Parent
 			if io
 				yield( io )
@@ -138,19 +138,19 @@ def download( sourceuri, targetfile=nil )
 		targetpath.open( File::WRONLY|File::TRUNC|File::CREAT, 0644 ) do |ofh|
 			log "Downloading..."
 			buf = ''
-		
+
 			while ifh.read( 16384, buf )
 				until buf.empty?
 					bytes = ofh.write( buf )
 					buf.slice!( 0, bytes )
 				end
 			end
-			
+
 			log "Done."
 		end
-		
+
 	end
-	
+
 	return targetpath
 ensure
 	$stdout.sync = oldsync
@@ -187,13 +187,13 @@ end
 ### line-endings, color reset, etc.
 def colorize( *args )
 	string = ''
-	
+
 	if block_given?
 		string = yield
 	else
 		string = args.shift
 	end
-	
+
 	ending = string[/(\s)$/] || ''
 	string = string.rstrip
 
@@ -275,7 +275,7 @@ def prompt_for_multiple_values( label, default=nil )
 
     results = []
     result = nil
-    
+
     begin
         result = readline( make_prompt_string("> ") )
 		if result.nil? || result.empty?
@@ -284,7 +284,7 @@ def prompt_for_multiple_values( label, default=nil )
         	results << result 
 		end
     end until result.nil? || result.empty?
-    
+
     return results.flatten
 end
 
@@ -307,7 +307,7 @@ def noecho( masked=false )
 	ensure
 		Termios.tcsetattr( $stdin, Termios::TCSANOW, term )
 	end
-	
+
 	return rval
 end
 
@@ -350,7 +350,7 @@ alias :prompt_for_confirmation :ask_for_confirmation
 ### those will be returned in an Array, else the whole matching line is returned.
 def find_pattern_in_file( regexp, file )
 	rval = nil
-	
+
 	File.open( file, 'r' ).each do |line|
 		if (( match = regexp.match(line) ))
 			rval = match.captures.empty? ? match[0] : match.captures
@@ -368,7 +368,7 @@ end
 ### is returned.
 def find_pattern_in_pipe( regexp, *cmd )
 	output = []
-	
+
 	log( cmd.collect {|part| part =~ /\s/ ? part.inspect : part} ) 
 	Open3.popen3( *cmd ) do |stdin, stdout, stderr|
 		stdin.close
@@ -376,7 +376,7 @@ def find_pattern_in_pipe( regexp, *cmd )
 		output << stdout.gets until stdout.eof?
 		output << stderr.gets until stderr.eof?
 	end
-	
+
 	result = output.find { |line| regexp.match(line) } 
 	return $1 || result
 end
@@ -403,10 +403,10 @@ end
 ### Log a subdirectory change, execute a block, and exit the subdirectory
 def in_subdirectory( subdir )
 	block = Proc.new
-	
+
 	log "Entering #{subdir}"
 	Dir.chdir( subdir, &block )
 	log "Leaving #{subdir}"
 end
-	
+
 
