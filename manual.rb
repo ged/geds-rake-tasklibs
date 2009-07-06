@@ -55,7 +55,7 @@ module Manual
 			def export_resources( output_dir )
 				# No-op by default
 			end
-			
+
 
 			### Process the +page+'s source with the filter and return the altered content.
 			def process( source, page, metadata )
@@ -118,28 +118,28 @@ module Manual
 		######
 		public
 		######
-		
+
 		# The Manual::PageCatalog to which the page belongs
 		attr_reader :catalog
-		
+
 		# The relative path to the base directory, for prepending to page paths
 		attr_reader :basepath
-		
+
 		# The Pathname object that specifys the page source file
 		attr_reader :sourcefile
-		
+
 		# The configured layouts directory as a Pathname object.
 		attr_reader :layouts_dir
-		
+
 		# The page configuration, as read from its YAML header
 		attr_reader :config
-		
+
 		# The raw source of the page
 		attr_reader :source
-		
+
 		# The filters the page will use to render itself
 		attr_reader :filters
-		
+
 
 		### Generate HTML output from the page and return it.
 		def generate( metadata )
@@ -156,7 +156,7 @@ module Manual
 			# meta-generator propaganda/advertising.
 			html = self.cleanup( html ).sub( %r:<meta name="generator"[^>]*tidy[^>]*/>:im, '' ) if
 				self.config['cleanup']
-				
+
 			return html
 		end
 
@@ -165,8 +165,8 @@ module Manual
 		def title
 			return self.config['title'] || self.sourcefile.basename
 		end
-		
-		
+
+
 		### Run the various filters on the given input and return the transformed
 		### content.
 		def generate_content( input, metadata )
@@ -182,13 +182,13 @@ module Manual
 			unless source =~ PAGE_WITH_YAML_HEADER
 				return DEFAULT_CONFIG.dup, source
 			end
-			
+
 			pageconfig = YAML.load( $1 )
 			source = $2
-			
+
 			return DEFAULT_CONFIG.merge( pageconfig ), source
 		end
-		
+
 
 		### Clean up and return the given HTML +source+.
 		def cleanup( source )
@@ -208,7 +208,7 @@ module Manual
 			trace "No cleanup: " + err.message
 			return source
 		end
-		
+
 
 		### Get (singleton) instances of the filters named in +filterlist+ and return them.
 		def load_filters( filterlist )
@@ -230,7 +230,7 @@ module Manual
 					items << %Q{<div class="section">}
 					items << %Q{<h2><a href="#{self.basepath + path}/">#{title}</a></h2>}
 					items << '<ul class="index-section">'
-					
+
 				when :current_section
 					items << %Q{<div class="section current-section">}
 					items << %Q{<h2><a href="#{self.basepath + path}/">#{title}</a></h2>}
@@ -267,44 +267,44 @@ module Manual
 		def initialize( sourcedir, layoutsdir )			
 			@sourcedir = sourcedir
 			@layoutsdir = layoutsdir
-			
+
 			@pages       = []
 			@path_index  = {}
 			@uri_index   = {}
 			@title_index = {}
 			@hierarchy   = {}
-			
+
 			self.find_and_load_pages
 		end
-		
-		
+
+
 		######
 		public
 		######
 
 		# An index of the pages in the catalog by Pathname
 		attr_reader :path_index
-		
+
 		# An index of the pages in the catalog by title
 		attr_reader :title_index
-		
+
 		# An index of the pages in the catalog by the URI of their source relative to the source 
 		# directory
 		attr_reader :uri_index
-		
+
 		# The hierarchy of pages in the catalog, suitable for generating an on-page index
 		attr_reader :hierarchy
-		
+
 		# An Array of all Manual::Page objects found
 		attr_reader :pages
 
 		# The Pathname location of the .page files.
 		attr_reader :sourcedir
-		
+
 		# The Pathname location of look and feel templates.
 		attr_reader :layoutsdir
 
-		
+
 		### Traverse the catalog's #hierarchy, yielding to the given +builder+
 		### block for each entry, as well as each time a sub-hash is entered or
 		### exited, setting the +type+ appropriately. Valid values for +type+ are:
@@ -361,7 +361,7 @@ module Manual
 						trace "Using the path for the sort of directory %p" % [ subpath ]
 						subpath.to_s
 					end
-					
+
 				# Page
 				else
 					if subpath == INDEX_PATH
@@ -376,7 +376,7 @@ module Manual
 
 			end # sort_by
 		end
-		
+
 
 		INDEX_PATH = Pathname.new('index')
 
@@ -386,7 +386,7 @@ module Manual
 			from_current = false
 			trace "Section handler: path=%p, section keys=%p, from=%s" %
 				[ path, section.keys, from.sourcefile ]
-			
+
 			# Call the callback with :section -- determine the section title from
 			# the 'index.page' file underneath it, or the directory name if no 
 			# index.page exists.
@@ -401,10 +401,10 @@ module Manual
 				title = File.dirname( path ).gsub( /_/, ' ' )
 				builder.call( :section, title, path )
 			end
-			
+
 			# Recurse
 			self.traverse_hierarchy( path, section, from, &builder )
-			
+
 			# Call the callback with :section_end
 			if from_current
 				builder.call( :current_section_end, '', path )
@@ -412,8 +412,8 @@ module Manual
 				builder.call( :section_end, '', path )
 			end
 		end
-		
-		
+
+
 		### Yield the specified +page+ to the builder
 		def handle_page_callback( path, page, from=nil )
 			if from == page
@@ -422,10 +422,10 @@ module Manual
 				yield( :entry, page.title, path )
 			end
 		end
-		
+
 
 		### Find and store
-		
+
 		### Find all .page files under the configured +sourcedir+ and create a new
 		### Manual::Page object for each one.
 		def find_and_load_pages
@@ -439,7 +439,7 @@ module Manual
 				@path_index[ pagefile ]     = page
 				@title_index[ page.title ]  = page
 				@uri_index[ hierpath.to_s ] = page
-				
+
 				# Place the page in the page hierarchy by using inject to find and/or create the 
 				# necessary subhashes. The last run of inject will return the leaf hash in which
 				# the page will live
@@ -451,7 +451,7 @@ module Manual
 				section[ pagefile.basename('.page') ] = page
 			end
 		end
-		
+
 	end
 
 
@@ -463,7 +463,7 @@ module Manual
 			require 'redcloth'
 			super
 		end
-		
+
 
 		### Process the given +source+ as Textile and return the resulting HTML
 		### fragment.
@@ -493,7 +493,7 @@ module Manual
 
 	### Manual generation task library
 	class GenTask < Rake::TaskLib
-		
+
 		# Default values for task config variables
 		DEFAULT_NAME         = :manual
 		DEFAULT_BASE_DIR     = Pathname.new( 'docs/manual' )
@@ -503,7 +503,7 @@ module Manual
 		DEFAULT_RESOURCE_DIR = 'resources'
 		DEFAULT_LIB_DIR      = 'lib'
 		DEFAULT_METADATA     = OpenStruct.new
-		
+
 
 		### Define a new manual-generation task with the given +name+.
 		def initialize( name=:manual )
@@ -515,13 +515,13 @@ module Manual
 			@resource_dir	= DEFAULT_RESOURCE_DIR
 			@lib_dir	    = DEFAULT_LIB_DIR
 			@metadata		= DEFAULT_METADATA
-			
+
 			yield( self ) if block_given?
-			
+
 			self.define
 		end
-		
-		
+
+
 		######
 		public
 		######
@@ -555,7 +555,7 @@ module Manual
 
 			load_filter_libraries( libdir )
 			catalog = Manual::PageCatalog.new( sourcedir, layoutsdir )
-			
+
 			# Declare the tasks outside the namespace that point in
 			task @name => "#@name:build"
 			task "clobber_#@name" => "#@name:clobber"
@@ -563,20 +563,20 @@ module Manual
 			namespace( self.name ) do
 				setup_resource_copy_tasks( resourcedir, outputdir )
 				manual_pages = setup_page_conversion_tasks( sourcedir, outputdir, catalog )
-				
+
 				desc "Build the manual"
 				task :build => [ :rdoc, :copy_resources, :copy_apidocs, :generate_pages ]
-				
+
 				task :clobber do
 					RakeFileUtils.verbose( $verbose ) do
 						rm_f manual_pages.to_a
 					end
 					remove_dir( outputdir ) if ( outputdir + '.buildtime' ).exist?
 				end
-				
+
 				desc "Remove any previously-generated parts of the manual and rebuild it"
 				task :rebuild => [ :clobber, self.name ]
-				
+
 				desc "Watch for changes to the source files and rebuild when they change"
 				task :autobuild do
 					scope = [ self.name ]
@@ -598,8 +598,8 @@ module Manual
 	        end
 
 		end # def define
-		
-		
+
+
 		### Load the filter libraries provided in the given +libdir+
 		def load_filter_libraries( libdir )
 			Pathname.glob( libdir + '*.rb' ) do |filterlib|
@@ -617,7 +617,7 @@ module Manual
 			# dependency that causes the rule to be fired for each one when the task is invoked.
 			manual_sources = FileList[ catalog.path_index.keys.map {|pn| pn.to_s} ]
 			trace "   found %d source files" % [ manual_sources.length ]
-			
+
 			# Map .page files to their equivalent .html output
 			html_pathmap = "%%{%s,%s}X.html" % [ sourcedir, outputdir ]
 			manual_pages = manual_sources.pathmap( html_pathmap )
@@ -636,33 +636,33 @@ module Manual
 					proc {|name| name.sub(/\.[^.]+$/, '.page').sub( outputdir, sourcedir) },
 					outputdir.to_s
 			 	]) do |task|
-			
+
 				source = Pathname.new( task.source )
 				target = Pathname.new( task.name )
 				log "  #{ source } -> #{ target }"
-					
+
 				page = catalog.path_index[ source ]
 				#trace "  page object is: %p" % [ page ]
-					
+
 				target.dirname.mkpath
 				target.open( File::WRONLY|File::CREAT|File::TRUNC ) do |io|
 					io.write( page.generate(metadata) )
 				end
 			end
-			
+
 			# Group all the manual page output files targets into a containing task
 			desc "Generate any pages of the manual that have changed"
 			task :generate_pages => manual_pages
 			return manual_pages
 		end
-		
-		
+
+
 		### Copy method for resources -- passed as a block to the various file tasks that copy
 		### resources to the output directory.
 		def copy_resource( task )
 			source = task.prerequisites[ 1 ]
 			target = task.name
-			
+
 			when_writing do
 				trace "  #{source} -> #{target}"
 				mkpath File.dirname( target ), :verbose => $trace unless
@@ -670,8 +670,8 @@ module Manual
 				install source, target, :mode => 0644, :verbose => $trace
 			end
 		end
-			
-		
+
+
 		### Set up a rule for copying files from the resources directory to the output dir.
 		def setup_resource_copy_tasks( resourcedir, outputdir )
 			resources = FileList[ resourcedir + '**/*.{js,css,png,gif,jpg,html}' ]
@@ -679,7 +679,7 @@ module Manual
 			target_pathmap = "%%{%s,%s}p" % [ resourcedir, outputdir ]
 			targets = resources.pathmap( target_pathmap )
 			copier = self.method( :copy_resource ).to_proc
-			
+
 			# Create a file task to copy each file to the output directory
 			resources.each_with_index do |resource, i|
 				file( targets[i] => [ outputdir.to_s, resource ], &copier )
@@ -696,9 +696,9 @@ module Manual
 				log "Copying manual resources"
 			end
 		end
-		
+
 	end # class Manual::GenTask
-	
+
 end
 
 
@@ -707,7 +707,7 @@ end
 if MANUALDIR.exist?
 	MANUALOUTPUTDIR = MANUALDIR + 'output'
 	trace "Manual will be generated in: #{MANUALOUTPUTDIR}"
-	
+
 	begin
 		directory MANUALOUTPUTDIR.to_s
 
@@ -740,14 +740,14 @@ else
 			log "No manual directory (#{MANUALDIR}) currently exists."
 			ask_for_confirmation( "Create a new manual directory tree from a template?" ) do
 				MANUALDIR.mkpath
-				
+
 				%w[layouts lib output resources src].each do |dir|
 					FileUtils.mkpath( MANUALDIR + dir, :mode => 0755, :verbose => true, :noop => $dryrun )
 				end
-				
+
 				Pathname.glob( TEMPLATEDIR + '**/*.{rb,css,png,js,erb,page}' ).each do |tmplfile|
 					trace "extname is: #{tmplfile.extname}"
-					
+
 					# Render ERB files
 					if tmplfile.extname == '.erb'
 						rname = tmplfile.basename( '.erb' )
@@ -762,7 +762,7 @@ else
 						target.open( File::WRONLY|File::CREAT|File::EXCL, 0644 ) do |fh|
 							fh.print( html )
 						end
-					
+
 					# Just copy anything else
 					else
 						target = MANUALDIR + tmplfile.relative_path_from( TEMPLATEDIR )

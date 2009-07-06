@@ -3,38 +3,30 @@
 # $Id$
 # 
 
-gem 'rdoc', '>= 2.4.1'
+gem 'rdoc', '>= 2.4.3'
 
 require 'rubygems'
 require 'rdoc/rdoc'
 require 'rake/clean'
-
+require 'rdoc/task'
 
 # Append docs/lib to the load path if it exists for a locally-installed Darkfish
 DOCSLIB = DOCSDIR + 'lib'
 $LOAD_PATH.unshift( DOCSLIB.to_s ) if DOCSLIB.exist?
 
 # Make relative string paths of all the stuff we need to generate docs for
-DOCFILES = LIB_FILES + EXT_FILES + GEMSPEC.extra_rdoc_files
+DOCFILES = Rake::FileList[ LIB_FILES + EXT_FILES + GEMSPEC.extra_rdoc_files ]
 
 
 directory RDOCDIR.to_s
 CLOBBER.include( RDOCDIR )
 
 desc "Build API documentation in #{RDOCDIR}"
-task :rdoc => [ Rake.application.rakefile, *DOCFILES ] do
+RDoc::Task.new do |task|
+	task.main = "README"
+	task.rdoc_files.include( DOCFILES )
+
 	args = RDOC_OPTIONS 
 	args += [ '-o', RDOCDIR.to_s ]
-	args += [ '-f', 'darkfish' ]
-	args += DOCFILES.collect {|pn| pn.to_s }
-
-	trace "Building docs with arguments: %s" % [ args.join(' ') ]
-	RDoc::RDoc.new.document( args ) rescue nil
+	task.options = args
 end
-
-desc "Rebuild API documentation in #{RDOCDIR}"
-task :rerdoc do
-	rm_r( RDOCDIR ) if RDOCDIR.exist?
-	Rake::Task[ :rdoc ].invoke
-end
-
