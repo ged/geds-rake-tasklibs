@@ -25,8 +25,6 @@ desc "Build API documentation in #{RDOCDIR}"
 RDoc::Task.new do |task|
 	task.main = "README"
 	task.rdoc_files.include( DOCFILES )
-
-	args = RDOC_OPTIONS 
-	args += [ '-o', RDOCDIR.to_s ]
-	task.options = args
+	task.rdoc_dir = RDOCDIR.to_s
+	task.options = RDOC_OPTIONS
 end

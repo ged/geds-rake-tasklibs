@@ -16,7 +16,7 @@ end
 SPEC_FILES       = [] unless defined?( SPEC_FILES )
 TEST_FILES       = [] unless defined?( TEST_FILES )
 
-COMMON_SPEC_OPTS = ['-Du', '-b'] unless defined?( COMMON_SPEC_OPTS )
+COMMON_SPEC_OPTS = ['-Du'] unless defined?( COMMON_SPEC_OPTS )
 
 COVERAGE_TARGETDIR = BASEDIR + 'coverage' unless defined?( COVERAGE_TARGETDIR )
 RCOV_EXCLUDES      = 'spec,tests,/Library/Ruby,/var/lib,/usr/local/lib' unless
