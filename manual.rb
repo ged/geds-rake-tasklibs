@@ -674,7 +674,7 @@ module Manual
 
 		### Set up a rule for copying files from the resources directory to the output dir.
 		def setup_resource_copy_tasks( resourcedir, outputdir )
-			resources = FileList[ resourcedir + '**/*.{js,css,png,gif,jpg,html}' ]
+			resources = FileList[ resourcedir + '**/*.{js,css,png,gif,jpg,html,svg,svgz,swf}' ]
 			resources.exclude( /\.svn/ )
 			target_pathmap = "%%{%s,%s}p" % [ resourcedir, outputdir ]
 			targets = resources.pathmap( target_pathmap )
