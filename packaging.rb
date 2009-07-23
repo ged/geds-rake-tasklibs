@@ -4,6 +4,7 @@
 # 
 
 require 'rbconfig'
+require 'pathname'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
 
@@ -35,8 +36,7 @@ file gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
 	end
 end
 
-svnrev = get_svn_rev()
-prerelease_gem_file_name = "#{PKG_FILE_NAME}.#{svnrev}.gem"
+prerelease_gem_file_name = "#{PKG_FILE_NAME}.#{PKG_BUILD}.gem"
 prerelease_gempath = PKGDIR + prerelease_gem_file_name
 
 desc "Build a pre-release RubyGem package"
@@ -60,7 +60,7 @@ task :install => "spec:quiet" do
 	sitelib = Pathname.new( CONFIG['sitelibdir'] )
 	sitearch = Pathname.new( CONFIG['sitearchdir'] )
 	Dir.chdir( LIBDIR ) do
-		LIB_FILES.each do |libfile|
+		LIB_FILES.collect {|path| Pathname(path) }.each do |libfile|
 			relpath = libfile.relative_path_from( LIBDIR )
 			target = sitelib + relpath
 			FileUtils.mkpath target.dirname,
@@ -101,7 +101,7 @@ task :uninstall do
 	sitearch = Pathname.new( CONFIG['sitearchdir'] )
 
 	Dir.chdir( LIBDIR ) do
-		LIB_FILES.each do |libfile|
+		LIB_FILES.collect {|path| Pathname(path) }.each do |libfile|
 			relpath = libfile.relative_path_from( LIBDIR )
 			target = sitelib + relpath
 			FileUtils.rm_f target, :verbose => true, :noop => $dryrun

@@ -29,7 +29,7 @@ task :test do
 		log "Running specs"
 		Rake::Task['spec:quiet'].invoke
 	end
-	
+
 	unless TEST_FILES.empty?
 		log "Running unit tests"
 		Rake::Task[:unittests].invoke 
@@ -101,7 +101,7 @@ end
 ### Test::Unit tests
 begin
 	require 'rake/testtask'
-	
+
 	Rake::TestTask.new( :unittests ) do |task|
 		task.libs += [LIBDIR]
 		task.test_files = TEST_FILES
@@ -116,7 +116,7 @@ rescue LoadError => err
 	task :unittests => :no_rspec
 end
 
-	
+
 ### RCov (via RSpec) tasks
 begin
 	gem 'rcov'
@@ -136,16 +136,6 @@ begin
 			task.rcov = true
 		end
 	end
-# 	unless TEST_FILES.empty?
-# 		require 'rcov/rcovtask'
-
-# 		Rcov::RcovTask.new do |task|
-# 			task.libs += [LIBDIR]
-# 			task.test_files = TEST_FILES
-# 			task.verbose = true
-# 			task.rcov_opts = RCOV_OPTS
-# 		end
-# 	end
 
 
 	### Task: rcov
@@ -166,12 +156,6 @@ begin
 			task.spec_opts = ['-f', 'p', '-b']
 			task.rcov_opts = RCOV_OPTS - ['--save'] + ['--text-coverage-diff']
 			task.rcov = true
-		end
-
-		### Task: verify coverage
-		desc "Build coverage statistics"
-		VerifyTask.new( :verify => :rcov ) do |task|
-			task.threshold = COVERAGE_MINIMUM
 		end
 
 		desc "Run RCov in 'spec-only' mode to check coverage from specs"

@@ -40,6 +40,9 @@ DOCSDIR       = BASEDIR + 'docs'
 PKGDIR        = BASEDIR + 'pkg'
 DATADIR       = BASEDIR + 'data'
 
+# Manual-generation config
+MANUALDIR     = DOCSDIR + 'manual'
+
 PROJECT_NAME  = '<%= settings['project_name'] %>'
 PKG_NAME      = PROJECT_NAME.downcase
 PKG_SUMMARY   = '<%= settings['project_summary'] %>'
@@ -79,6 +82,8 @@ TEST_FILES    = Rake::FileList.new( "#{TESTDIR}/**/*.tests.rb" ).exclude( /\.svn
 
 RAKE_TASKDIR  = BASEDIR + 'rake'
 RAKE_TASKLIBS = Rake::FileList.new( "#{RAKE_TASKDIR}/*.rb" )
+PKG_TASKLIBS  = Rake::FileList.new( "#{RAKE_TASKDIR}/{191_compat,helpers,packaging,rdoc,testing}.rb" )
+PKG_TASKLIBS.include( "#{RAKE_TASKDIR}/manual.rb" ) if MANUALDIR.exist?
 
 LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
 
@@ -124,11 +129,13 @@ SVN_ENTRIES      = SVN_DOTDIR + 'entries'
 
 ### Load some task libraries that need to be loaded early
 require RAKE_TASKDIR + 'helpers.rb'
-require RAKE_TASKDIR + 'svn.rb'
-require RAKE_TASKDIR + 'verifytask.rb'
 
 # Define some constants that depend on the 'svn' tasklib
-PKG_BUILD = get_svn_rev( BASEDIR ) || 0
+PKG_BUILD = if respond_to?( :get_svn_rev )
+		get_svn_rev( BASEDIR )
+	else
+		0
+	end
 SNAPSHOT_PKG_NAME = "#{PKG_FILE_NAME}.#{PKG_BUILD}"
 SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
 
@@ -251,9 +258,6 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		gem.requirements << [ name, version ].compact.join(' ')
 	end
 end
-
-# Manual-generation config
-MANUALDIR = DOCSDIR + 'manual'
 
 $trace = Rake.application.options.trace ? true : false
 $dryrun = Rake.application.options.dryrun ? true : false
