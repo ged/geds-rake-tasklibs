@@ -18,8 +18,23 @@
     multiline: true
     post-process: "args.collect {|line| line.chomp }.join(\"\n\")"
 
-- author_name: Your name
-- author_email: Your email address
+- authors: 
+    prompt: |-
+        Enter the project's authors, one per line, in the form: 
+            J. Random Hacker <jrandom@example.com>'
+    multiline: true
+    post-process: |-
+        authors = args.collect {|line|
+            if line =~ /(\S.*)\s<([^>]+)>/
+                $stderr.puts "Author tuple: %p" % [ $~.captures ]
+                $~.captures
+            else
+                $stderr.puts "I can't parse an author out of: %p" % [ line ]
+                nil
+            end
+        }.compact.flatten
+        $stderr.puts "Making a Hash of author tuples: %p" % [ authors ]
+        Hash[ *authors ]
 
 - project_dependencies:
     prompt: "Runtime dependencies (<gemname>: <gem_version_spec>)"

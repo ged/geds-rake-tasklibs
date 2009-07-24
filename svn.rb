@@ -113,7 +113,7 @@ end
 def get_svn_path( dir='.' )
 	root = get_svn_repo_root( dir )
 	url = get_svn_url( dir )
-	
+
 	return url.sub( root + '/', '' )
 end
 
@@ -127,14 +127,14 @@ def get_svn_keyword_map( *files )
 
 	# trace "Executing: svn pg svn:keywords " + files.join(' ')
 	output = IO.read( '|-' ) or exec( 'svn', 'pg', 'svn:keywords', *files )
-	
+
 	kwmap = {}
 	output.split( "\n" ).each do |line|
 		next if line !~ /\s+-\s+/
 		path, keywords = line.split( /\s+-\s+/, 2 )
 		kwmap[ path ] = keywords.split
 	end
-	
+
 	return kwmap
 end
 
@@ -162,7 +162,7 @@ def svn_ls( url=nil )
 	list = IO.read( '|-' ) or exec 'svn', 'ls', url
 
 	trace 'svn ls of %s: %p' % [url, list] if $trace
-	
+
 	return [] if list.nil? || list.empty?
 	return list.split( $INPUT_RECORD_SEPARATOR )
 end
@@ -172,7 +172,7 @@ end
 def get_latest_svn_timestamp_tag
 	rooturl = get_svn_repo_root()
 	tagsurl = rooturl + "/#{SVN_TAGS_DIR}"
-	
+
 	tags = svn_ls( tagsurl ).grep( TAG_TIMESTAMP_PATTERN ).sort
 	return nil if tags.nil? || tags.empty?
 	return tagsurl + '/' + tags.last
@@ -211,7 +211,7 @@ end
 def get_latest_release_tag
 	rooturl    = get_svn_repo_root()
 	releaseurl = rooturl + "/#{SVN_RELEASES_DIR}"
-	
+
 	tags = svn_ls( releaseurl ).grep( RELEASE_VERSION_PATTERN ).sort_by do |tag|
 		tag[RELEASE_VERSION_PATTERN].split('.').collect {|i| Integer(i) }
 	end
@@ -225,7 +225,7 @@ end
 def get_branch_names
 	rooturl     = get_svn_repo_root()
 	branchesurl = rooturl + "/#{SVN_BRANCHES_DIR}"
-	
+
 	return svn_ls( branchesurl )
 end
 
@@ -295,17 +295,17 @@ def make_svn_changelog( dir='.' )
 				else
 					added << "%s (new)" % [ pathname ]
 				end
-			
+
 			when 'M'
 				changed << pathname
-			
+
 			when 'D'
 				deleted << pathname
-			
+
 			else
 				log "Unknown action %p in rev %d" % [ path['action'], entry['revision'] ]
 			end
-		
+
 		end
 
 		date = Time.parse( entry.find_first('date').content )
@@ -315,7 +315,7 @@ def make_svn_changelog( dir='.' )
 		if entry.find_first( 'author' )
 			author = entry.find_first( 'author' ).content
 		end
-		              
+
 		msg = entry.find_first( 'msg' ).content
 		rev = entry['revision']
 
@@ -324,13 +324,13 @@ def make_svn_changelog( dir='.' )
 		changelog << "   Changed: " << humanize_file_list(changed) << "\n" unless changed.empty?
 		changelog << "   Deleted: " << humanize_file_list(deleted) << "\n" unless deleted.empty?
 		changelog << "\n"
-		
+
 		indent = msg[/^(\s*)/] + LOG_INDENT
-		
+
 		changelog << indent << msg.strip.gsub(/\n\s*/m, "\n#{indent}")
 		changelog << "\n\n\n"
 	end
-	
+
 	return changelog
 end
 
@@ -341,7 +341,7 @@ def humanize_file_list( list, indent=FILE_INDENT )
 	if list.length > 5
 		listtext << " (and %d other/s)" % [ list.length - 5 ]
 	end
-	
+
 	return listtext
 end
 
@@ -412,7 +412,7 @@ namespace :svn do
 		unless branchname
 			branchname = prompt( "Branch name" ) or abort
 		end
-		
+
 		svninfo      = get_svn_info()
 		svntrunk     = Pathname.new( svninfo['Repository Root'] ) + SVN_TRUNK_DIR
 		svnbranchdir = Pathname.new( svninfo['Repository Root'] ) + SVN_BRANCHES_DIR
@@ -427,20 +427,20 @@ namespace :svn do
 			end
 		end
 	end
-	
-	
+
+
 	desc "Switch the working copy to the named branch"
 	task :switch, [:name] do |task, args|
 		branches = get_branch_names().collect {|name| name.chomp('/') }
 
 		unless args.name
 			log "Branches are:\n" + branches.collect {|br| "  #{br}" }.join( "\n" )
-			
+
 			begin
 				oldproc = Readline.completion_proc
 				abbrev = branches.abbrev 
 				Readline.completion_proc = lambda{|string| abbrev[string] }
-			
+
 				name = prompt( "Branch to switch to" ) or abort
 				args.with_defaults( :name => name )
 			ensure
@@ -454,13 +454,13 @@ namespace :svn do
 		run 'svn', 'sw', branchuri
 	end
 	task :sw => :switch
-	
+
 
 	desc "Switch to the trunk if the working copy isn't there already."
 	task :trunk do
 		svninfo      = get_svn_info()
 		svntrunk     = Pathname.new( svninfo['Repository Root'] ) + SVN_TRUNK_DIR
-		
+
 		if svninfo['URL'] != svntrunk.to_s
 			log "Switching to #{svntrunk}"
 			run 'svn', 'sw', svntrunk
@@ -468,7 +468,7 @@ namespace :svn do
 			log "You are already on trunk (#{svntrunk})"
 		end
 	end
-	
+
 
 	desc "Copy the most recent tag to #{SVN_RELEASES_DIR}/#{PKG_VERSION}"
 	task :release do
@@ -498,7 +498,7 @@ namespace :svn do
 		else
 			trace "No #{release} version currently exists"
 		end
-		
+
 		desc = "Tagging trunk as #{svnrelease}..."
 		ask_for_confirmation( desc ) do
 			msg = prompt_with_default( "Commit log: ", "Branching for release" )
@@ -514,16 +514,16 @@ namespace :svn do
 
 	desc "Generate a commit log"
 	task :commitlog => [COMMIT_MSG_FILE]
-	
+
 	desc "Show the (pre-edited) commit log for the current directory"
 	task :show_commitlog do
 		puts make_svn_commit_log()
 	end
-	
+
 
 	file COMMIT_MSG_FILE do
 		diff = make_svn_commit_log()
-		
+
 		File.open( COMMIT_MSG_FILE, File::WRONLY|File::EXCL|File::CREAT ) do |fh|
 			fh.print( diff )
 		end
@@ -546,7 +546,7 @@ namespace :svn do
 	task :newfiles do
 		log "Checking for new files..."
 		entries = get_svn_status()
-		
+
 		unless entries.empty?
 			files_to_add = []
 			files_to_ignore = []
@@ -563,11 +563,11 @@ namespace :svn do
 					files_to_delete << entry[1]
 				end
 			end
-			
+
 			unless files_to_add.empty?
 				run 'svn', 'add', *files_to_add
 			end
-		
+
 			unless files_to_ignore.empty?
 				svn_ignore_files( *files_to_ignore )
 			end
@@ -578,7 +578,7 @@ namespace :svn do
 		end
 	end
 	task :add => :newfiles
-	
+
 
 	desc "Check in all the changes in your current working copy"
 	task :checkin => ['svn:update', 'svn:newfiles', 'test', 'svn:fix_keywords', COMMIT_MSG_FILE] do
@@ -591,13 +591,13 @@ namespace :svn do
 	end
 	task :commit => :checkin
 	task :ci => :checkin
-	
-	
+
+
 	task :clean do
 		rm_f COMMIT_MSG_FILE
 	end
 
-	
+
 	desc "Check and fix any missing keywords for any files in the project which need them"
 	task :fix_keywords do
 		log "Checking subversion keywords..."
@@ -610,11 +610,11 @@ namespace :svn do
 		buf = ''
 		PP.pp( kwmap, buf, 132 )
 		trace "keyword map is: %s" % [buf]
-		
+
 		files_needing_fixups = paths.find_all do |path|
 			(kwmap[path.to_s] & DEFAULT_KEYWORDS) != DEFAULT_KEYWORDS
 		end
-		
+
 		unless files_needing_fixups.empty?
 			$stderr.puts "Files needing keyword fixes: ",
 				files_needing_fixups.collect {|f|
@@ -628,7 +628,7 @@ namespace :svn do
 		end
 	end
 
-	
+
 	task :debug_helpers do
 		methods = [
 			:get_last_changed_rev,
@@ -646,7 +646,7 @@ namespace :svn do
 			:svn_ls,
 		]
 		maxlen = methods.collect {|sym| sym.to_s.length }.max
-		
+
 		methods.each do |meth|
 			res = send( meth )
 			puts "%*s => %p" % [ maxlen, colorize(meth.to_s, :cyan), res ]

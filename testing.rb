@@ -168,12 +168,6 @@ begin
 			task.rcov = true
 		end
 
-		### Task: verify coverage
-		desc "Build coverage statistics"
-		VerifyTask.new( :verify => :rcov ) do |task|
-			task.threshold = COVERAGE_MINIMUM
-		end
-
 		desc "Run RCov in 'spec-only' mode to check coverage from specs"
 		Spec::Rake::SpecTask.new( :speconly ) do |task|
 			task.spec_files = SPEC_FILES
