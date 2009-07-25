@@ -114,6 +114,7 @@ RCOV_OPTS = [
 
 ### Load some task libraries that need to be loaded early
 require RAKE_TASKDIR + 'helpers.rb'
+require RAKE_TASKDIR + 'hg.rb'
 
 # Define some constants that depend on the 'svn' tasklib
 PKG_BUILD = get_vcs_rev( BASEDIR ) || 0
@@ -284,14 +285,11 @@ task :local
 CLEAN.include 'coverage'
 CLOBBER.include 'artifacts', 'coverage.info', PKGDIR
 
-# Target to hinge on ChangeLog updates
-file SVN_ENTRIES
-
 ### Task: changelog
-file 'ChangeLog' => SVN_ENTRIES.to_s do |task|
+file 'ChangeLog' do |task|
 	log "Updating #{task.name}"
 
-	changelog = make_svn_changelog()
+	changelog = make_changelog()
 	File.open( task.name, 'w' ) do |fh|
 		fh.print( changelog )
 	end
@@ -319,7 +317,7 @@ end
 desc "Update the build system to the latest version"
 task :update_build do
 	log "Updating the build system"
-	sh 'svn', 'up', RAKE_TASKDIR
+	run 'hg', '-R', RAKE_TASKDIR, 'pull', '-u'
 	log "Updating the Rakefile"
 	sh 'rake', '-f', RAKE_TASKDIR + 'Metarakefile'
 end
