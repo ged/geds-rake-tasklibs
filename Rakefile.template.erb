@@ -41,6 +41,8 @@ DOCSDIR       = BASEDIR + 'docs'
 PKGDIR        = BASEDIR + 'pkg'
 DATADIR       = BASEDIR + 'data'
 
+MANUALDIR     = DOCSDIR + 'manual'
+
 PROJECT_NAME  = '<%= settings['project_name'] %>'
 PKG_NAME      = PROJECT_NAME.downcase
 PKG_SUMMARY   = '<%= settings['project_summary'] %>'
@@ -243,9 +245,6 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		gem.requirements << [ name, version ].compact.join(' ')
 	end
 end
-
-# Manual-generation config
-MANUALDIR = DOCSDIR + 'manual'
 
 $trace = Rake.application.options.trace ? true : false
 $dryrun = Rake.application.options.dryrun ? true : false
