@@ -4,6 +4,7 @@
 # 
 
 require 'rbconfig'
+require 'pathname'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
 
@@ -59,7 +60,7 @@ task :install => "spec:quiet" do
 	sitelib = Pathname.new( CONFIG['sitelibdir'] )
 	sitearch = Pathname.new( CONFIG['sitearchdir'] )
 	Dir.chdir( LIBDIR ) do
-		LIB_FILES.each do |libfile|
+		LIB_FILES.collect {|path| Pathname(path) }.each do |libfile|
 			relpath = libfile.relative_path_from( LIBDIR )
 			target = sitelib + relpath
 			FileUtils.mkpath target.dirname,
@@ -100,7 +101,7 @@ task :uninstall do
 	sitearch = Pathname.new( CONFIG['sitearchdir'] )
 
 	Dir.chdir( LIBDIR ) do
-		LIB_FILES.each do |libfile|
+		LIB_FILES.collect {|path| Pathname(path) }.each do |libfile|
 			relpath = libfile.relative_path_from( LIBDIR )
 			target = sitelib + relpath
 			FileUtils.rm_f target, :verbose => true, :noop => $dryrun
