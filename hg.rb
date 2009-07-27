@@ -25,6 +25,10 @@ LOG_INDENT = " " * 3
 
 module MercurialHelpers
 
+	###############
+	module_function
+	###############
+
 	### Generate a commit log from a diff and return it as a String.
 	def make_commit_log
 		diff = IO.read( '|-' ) or exec 'hg', 'diff'
@@ -48,7 +52,7 @@ module MercurialHelpers
 	### Return the ID for the current rev
 	def get_current_rev
 		id = IO.read( '|-' ) or exec 'hg', '-q', 'identify'
-		return id
+		return id.chomp
 	end
 
 	### Return the list of files which are of status 'unknown'

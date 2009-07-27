@@ -44,7 +44,7 @@ task :prerelease_gem => prerelease_gempath.to_s
 file prerelease_gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
 	when_writing( "Creating prerelease GEM" ) do
 		gemspec = GEMSPEC.clone
-		gemspec.version = Gem::Version.create( "%s.%d" % [GEMSPEC.version, PKG_BUILD] )
+		gemspec.version = Gem::Version.create( "%s.%s" % [GEMSPEC.version, PKG_BUILD] )
 		Gem::Builder.new( gemspec ).build
 		verbose( true ) do
 			mv SNAPSHOT_GEM_NAME, prerelease_gempath
