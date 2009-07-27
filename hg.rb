@@ -115,7 +115,7 @@ unless defined?( HG_DOTDIR )
 	namespace :hg do
 		include MercurialHelpers
 
-		task :release do
+		task :prep_release do
 			# Get the rev for the tag name
 			# Look for an existing tag with that rev, and if it exists abort
 			# Tag the current rev
@@ -206,8 +206,8 @@ unless defined?( HG_DOTDIR )
 		desc "Check in all the changes in your current working copy"
 		task :checkin => 'hg:ci'
 
-		desc "Tag and sign a release"
-		task :release => 'hg:release'
+		desc "Tag and sign revision before a release"
+		task :prep_release => 'hg:tag'
 
 	else
 		trace "Not defining mercurial tasks: no #{HG_DOTDIR}"

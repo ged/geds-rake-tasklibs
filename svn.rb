@@ -57,12 +57,11 @@ unless defined?( SVN_DOTDIR )
 	### Subversion-specific Helpers
 	###
 	module SubversionHelpers
-	
+
 		###############
 		module_function
 		###############
 
-	
 		### Return a new tag for the given time
 		def make_new_tag( time=Time.now )
 			return time.strftime( TAG_TIMESTAMP_FORMAT )
@@ -390,6 +389,7 @@ unless defined?( SVN_DOTDIR )
 
 	desc "Subversion tasks"
 	namespace :svn do
+		include SubversionHelpers
 
 		desc "Copy the HEAD revision of the current #{SVN_TRUNK_DIR}/ to #{SVN_TAGS_DIR}/ with a " +
 			 "current timestamp."
@@ -474,7 +474,7 @@ unless defined?( SVN_DOTDIR )
 
 
 		desc "Copy the most recent tag to #{SVN_RELEASES_DIR}/#{PKG_VERSION}"
-		task :release do
+		task :prep_release do
 			last_tag    = get_latest_svn_timestamp_tag()
 			svninfo     = get_svn_info()
 			svnroot     = Pathname.new( svninfo['Repository Root'] )
@@ -667,7 +667,7 @@ unless defined?( SVN_DOTDIR )
 		task :checkin => 'svn:ci'
 
 		desc "Tag a release"
-		task :release => 'svn:release'
+		task :prep_release => 'svn:prep_release'
 
 	else
 		trace "Not defining subversion tasks: no #{SVN_DOTDIR}"

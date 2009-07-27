@@ -100,7 +100,7 @@ begin
 
 
 	namespace :release do
-		task :default => [ 'svn:release', :upload, :publish, :announce ]
+		task :default => [ :prep_release, :upload, :publish, :announce ]
 
 		desc "Re-publish the release with the current version number"
 		task :rerelease => [  :upload, :publish, :announce ]
@@ -117,7 +117,7 @@ begin
 		task :notes => [RELEASE_NOTES_FILE]
 		file RELEASE_NOTES_FILE do |task|
 			last_rel_tag = get_latest_release_tag() or
-				fail ">>> No releases tagged! Try running 'rake svn:release' first"
+				fail ">>> No releases tagged! Try running 'rake prep_release' first"
 			trace "Last release tag is: %p" % [ last_rel_tag ]
 			start = get_last_changed_rev( last_rel_tag ) || 1
 			trace "Starting rev is: %p" % [ start ]
