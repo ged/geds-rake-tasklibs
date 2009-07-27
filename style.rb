@@ -1,6 +1,6 @@
 # 
 # Style Fixup Rake Tasks
-# $Id$
+
 # 
 # Authors:
 # * Michael Granger <ged@FaerieMUD.org>

@@ -1,12 +1,14 @@
 # 
 # Packaging Rake Tasks
-# $Id$
+
 # 
 
 require 'rbconfig'
 require 'pathname'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
+
+require Pathname( __FILE__ ).dirname.expand_path + 'hg.rb'
 
 include Config
 

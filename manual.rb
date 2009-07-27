@@ -1,6 +1,6 @@
 # 
 # Manual-generation Rake tasks and classes
-# $Id$
+
 # 
 # Authors:
 # * Michael Granger <ged@FaerieMUD.org>

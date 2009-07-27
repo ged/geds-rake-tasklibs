@@ -1,6 +1,6 @@
 # 
 # RDoc Rake tasks
-# $Id$
+
 # 
 
 gem 'rdoc', '>= 2.4.3'

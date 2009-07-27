@@ -1,7 +1,7 @@
 #!/usr/bin/env rake
 #  
 # A rakefile for creating/updating project Rakefiles
-# $Id$
+
 # 
 # Author: Michael Granger <ged@FaerieMUD.org>
 # 

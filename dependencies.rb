@@ -1,6 +1,6 @@
 # 
 # Dependency-checking and Installation Rake Tasks
-# $Id$
+
 # 
 
 require 'rubygems/dependency_installer'

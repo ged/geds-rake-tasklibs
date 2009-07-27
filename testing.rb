@@ -1,6 +1,6 @@
 # 
 # Rake tasklib for testing tasks
-# $Id$
+
 # 
 # Authors:
 # * Michael Granger <ged@FaerieMUD.org>
