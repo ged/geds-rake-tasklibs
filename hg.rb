@@ -33,6 +33,17 @@ unless defined?( HG_DOTDIR )
 			return diff
 		end
 
+		### Generate a commit log and invoke the user's editor on it.
+		def edit_commit_log
+			diff = make_commit_log()
+
+			File.open( COMMIT_MSG_FILE, File::WRONLY|File::TRUNC|File::CREAT ) do |fh|
+				fh.print( diff )
+			end
+
+			edit( COMMIT_MSG_FILE )
+		end
+
 		### Generate a changelog.
 		def make_changelog
 			log = IO.read( '|-' ) or exec 'hg', 'log', '--style', 'compact'
@@ -123,28 +134,7 @@ unless defined?( HG_DOTDIR )
 			# Offer to push
 		end
 
-		task :commitlog => [COMMIT_MSG_FILE]
-
-		task :show_commitlog do
-			puts make_commit_log()
-		end
-
-
-		file COMMIT_MSG_FILE do
-			diff = make_commit_log()
-
-			File.open( COMMIT_MSG_FILE, File::WRONLY|File::EXCL|File::CREAT ) do |fh|
-				fh.print( diff )
-			end
-
-			editor = ENV['EDITOR'] || ENV['VISUAL'] || DEFAULT_EDITOR
-			system editor, COMMIT_MSG_FILE
-			unless $?.success? || editor =~ /vim/i
-				fail "Editor exited uncleanly."
-			end
-		end
-
-
+		desc "Check for new files and offer to add/ignore/delete them."
 		task :newfiles do
 			log "Checking for new files..."
 
@@ -208,6 +198,10 @@ unless defined?( HG_DOTDIR )
 
 		desc "Tag and sign revision before a release"
 		task :prep_release => 'hg:tag'
+
+		file COMMIT_MSG_FILE do
+			edit_commit_log()
+		end
 
 	else
 		trace "Not defining mercurial tasks: no #{HG_DOTDIR}"

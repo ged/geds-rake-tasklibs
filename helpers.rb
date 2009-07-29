@@ -387,7 +387,7 @@ end
 def edit( filename )
 	editor = ENV['EDITOR'] || ENV['VISUAL'] || DEFAULT_EDITOR
 	system editor, filename
-	unless $?.success?
+	unless $?.success? || editor =~ /vim/i
 		fail "Editor exited uncleanly."
 	end
 end

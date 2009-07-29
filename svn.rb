@@ -191,6 +191,18 @@ unless defined?( SVN_DOTDIR )
 		end
 
 
+		### Generate a commit log and invoke the user's editor on it.
+		def edit_commit_log
+			diff = make_commit_log()
+
+			File.open( COMMIT_MSG_FILE, File::WRONLY|File::TRUNC|File::CREAT ) do |fh|
+				fh.print( diff )
+			end
+
+			edit( COMMIT_MSG_FILE )
+		end
+
+
 		### Get a subversion status as an Array of tuples of the form:
 		###   [ <status>, <path> ]
 		def get_svn_status( *targets )
@@ -515,30 +527,6 @@ unless defined?( SVN_DOTDIR )
 		end
 
 
-		desc "Generate a commit log"
-		task :commitlog => [COMMIT_MSG_FILE]
-
-		desc "Show the (pre-edited) commit log for the current directory"
-		task :show_commitlog do
-			puts make_svn_commit_log()
-		end
-
-
-		file COMMIT_MSG_FILE do
-			diff = make_svn_commit_log()
-
-			File.open( COMMIT_MSG_FILE, File::WRONLY|File::EXCL|File::CREAT ) do |fh|
-				fh.print( diff )
-			end
-
-			editor = ENV['EDITOR'] || ENV['VISUAL'] || DEFAULT_EDITOR
-			system editor, COMMIT_MSG_FILE
-			unless $?.success?
-				fail "Editor exited uncleanly."
-			end
-		end
-
-
 		desc "Update from Subversion"
 		task :update do
 			run 'svn', 'up', '--ignore-externals'
@@ -669,6 +657,9 @@ unless defined?( SVN_DOTDIR )
 		desc "Tag a release"
 		task :prep_release => 'svn:prep_release'
 
+		file COMMIT_MSG_FILE do
+			edit_commit_log()
+		end
 	else
 		trace "Not defining subversion tasks: no #{SVN_DOTDIR}"
 	end
