@@ -24,17 +24,21 @@
             J. Random Hacker <jrandom@example.com>'
     multiline: true
     post-process: |-
-        authors = args.collect {|line|
-            if line =~ /(\S.*)\s<([^>]+)>/
-                $stderr.puts "Author tuple: %p" % [ $~.captures ]
-                $~.captures
-            else
-                $stderr.puts "I can't parse an author out of: %p" % [ line ]
-                nil
-            end
-        }.compact.flatten
-        $stderr.puts "Making a Hash of author tuples: %p" % [ authors ]
-        Hash[ *authors ]
+        if args.length == 1 && args.first.is_a?( Hash )
+            args.first
+        else
+            authors = args.collect {|line|
+                if line =~ /(\S.*)\s<([^>]+)>/
+                    trace "Author tuple: %p" % [ $~.captures ]
+                    $~.captures
+                else
+                    log "I can't parse an author out of: %p" % [ line ]
+                    nil
+                end
+            }.compact.flatten
+            trace "Making a Hash of author tuples: %p" % [ authors ]
+            Hash[ *authors ]
+        end
 
 - project_dependencies:
     prompt: "Runtime dependencies (<gemname>: <gem_version_spec>)"

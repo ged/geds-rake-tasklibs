@@ -65,16 +65,16 @@ public
 ### The value can also be a simple string, which is shorthand for { 'prompt' => 'string' }
 def build_settings_hash( questionsfile, defaults )
 	settings = {}
-	
+
 	questions = YAML.load_file( questionsfile )
 	trace "Questions are:\n%p" % [ questions ]
-	
+
 	questions.inject( settings ) do |h, question|
 		field, answer = self.prompt_user_for_setting( question, defaults[question.keys.first] )
 		h[ field ] = answer
 		h
 	end
-	
+
 	return settings
 end
 
@@ -84,13 +84,13 @@ def prompt_user_for_setting( question, default )
 	trace "Prompting user using %p" % [ question ]
 	field, promptconfig = question.to_a.flatten
 	trace " %p, %p" % [ field, promptconfig ]
-	
+
 	prompttext       = nil
 	validation_block = lambda {|*args| args.first }
 	multiline        = false
 	answer           = nil
 	postproc         = nil
-	
+
 	# Configure the prompt from the question Hash or String
 	case promptconfig
 	when String
@@ -185,7 +185,7 @@ file PROJECT_SETTINGS_FILE.to_s => SETTINGS_QUESTIONS do
 	if PROJECT_SETTINGS_FILE.exist?
 		defaults = YAML.load_file( PROJECT_SETTINGS_FILE )
 	end
-	
+
 	settings = build_settings_hash( SETTINGS_QUESTIONS, defaults )
 	PROJECT_SETTINGS_FILE.open( File::WRONLY|File::TRUNC|File::CREAT ) do |fh|
 		fh.print( YAML.dump(settings) )
