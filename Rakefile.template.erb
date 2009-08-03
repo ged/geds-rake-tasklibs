@@ -262,6 +262,7 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.bindir            = BINDIR.relative_path_from(BASEDIR).to_s
 	gem.executables       = BIN_FILES.select {|pn| File.executable?(pn) }.
 	                            collect {|pn| File.basename(pn) }
+	gem.require_paths << EXTDIR.relative_path_from( BASEDIR ).to_s if EXTDIR.exist?
 
 	if EXTCONF.exist?
 		gem.extensions << EXTCONF.relative_path_from( BASEDIR ).to_s
@@ -297,7 +298,7 @@ RAKE_TASKLIBS.each do |tasklib|
 	next if tasklib.to_s =~ %r{/helpers\.rb$}
 	begin
 		trace "  loading tasklib %s" % [ tasklib ]
-		require tasklib
+		import tasklib
 	rescue ScriptError => err
 		fail "Task library '%s' failed to load: %s: %s" %
 			[ tasklib, err.class.name, err.message ]

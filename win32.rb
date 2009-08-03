@@ -13,6 +13,7 @@
 # * Aaron Patterson
 #   http://tenderlovemaking.com/2008/11/21/cross-compiling-ruby-gems-for-win32/
 
+require 'rubygems'
 require 'rake'
 require 'pathname'
 require 'rubygems/platform'
@@ -67,7 +68,7 @@ def untar( tarfile, targetdir )
 	raise "No such directory: #{targetdir}" unless targetdir.directory?
 
 	reader = Archive::Tar::Reader.new( tarfile.to_s, TAR_OPTS )
-	
+
 	mkdir_p( targetdir )
 	reader.each( true ) do |header, body|
 		path = targetdir + header[:path]
@@ -84,7 +85,7 @@ def untar( tarfile, targetdir )
 		when :directory
 			trace "  #{path}"
 			path.mkpath
-			
+
 		when :link
 			linktarget = targetdir + header[:dest]
 			trace "  #{path} => #{linktarget}"
@@ -96,16 +97,16 @@ def untar( tarfile, targetdir )
 			path.make_symlink( linktarget )
 		end
 	end
-	
+
 end
 
 
 begin
 	require 'archive/tar'
-	
+
 	namespace :win32 do
 		directory XCOMPILER_DIR.to_s
-		
+
 		file XCOMPILER_DL => XCOMPILER_DIR do
 			# openuri can't handle this -- passive ftp required?
 			# run 'wget', '-O', XCOMPILER_DL, RUBY_DL_URI
@@ -140,7 +141,7 @@ begin
 					mv 'Makefile.in', 'Makefile.in.orig'
 					mv 'Makefile.in.new', 'Makefile.in'
 				end
-				
+
 				run *CONFIGURE_CMD
 				run 'make', 'ruby'
 				run 'make', 'rubyw.exe'
@@ -158,7 +159,7 @@ begin
 				sh 'make'
 			end
 		end
-		
+
 		desc "Build a binary gem for win32 systems"
 		task :gem => ['win32:build', PKGDIR.to_s] + WIN32_GEMSPEC.files do
 			when_writing( "Creating win32 GEM" ) do
@@ -171,16 +172,19 @@ begin
 	end
 
 rescue LoadError => err
+	trace "Couldn't load the win32 tasks: %s: %s" % [ err.class.name, err.message ]
+
 	task :no_win32_build do
 		abort "No win32 build: %s: %s" % [ err.class.name, err.message ]
 	end
-	
+
 	namespace :win32 do
 		desc "Build a binary Gem for Win32 systems, installing a cross " +
 		     "compiled Ruby if necessary"
+		task :gem => :no_win32_build
 		task :build => :no_win32_build
 	end
-			
+
 end
 
 

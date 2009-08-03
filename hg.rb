@@ -82,7 +82,7 @@ unless defined?( HG_DOTDIR )
 		end
 
 
-		### Add the list of +pathnames+ to the svn:ignore list.
+		### Add the list of +pathnames+ to the .hgignore list.
 		def hg_ignore_files( *pathnames )
 			patterns = pathnames.flatten.collect do |path|
 				'^' + Regexp.escape(path) + '$'
@@ -126,6 +126,7 @@ unless defined?( HG_DOTDIR )
 	namespace :hg do
 		include MercurialHelpers
 
+		desc "Prepare for a new release"
 		task :prep_release do
 			# Get the rev for the tag name
 			# Look for an existing tag with that rev, and if it exists abort
@@ -173,6 +174,7 @@ unless defined?( HG_DOTDIR )
 		task :add => :newfiles
 
 
+		desc "Check the current code in if tests pass"
 		task :checkin => ['hg:newfiles', 'test', COMMIT_MSG_FILE] do
 			targets = get_target_args()
 			$stderr.puts '---', File.read( COMMIT_MSG_FILE ), '---'
