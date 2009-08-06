@@ -109,7 +109,7 @@ LOCAL_RAKEFILE = BASEDIR + 'Rakefile.local'
 EXTRA_PKGFILES = Rake::FileList.new
 <% settings['additional_pkgfiles'] ||= [] %>
 <% settings['additional_pkgfiles'].each do |glob| %>
-EXTRA_PKGFILES.include "#{BASEDIR}/<%= glob %>"
+EXTRA_PKGFILES.include( "#{BASEDIR}/<%= glob %>" )
 <% end %>
 
 RELEASE_FILES = TEXT_FILES + 
@@ -121,6 +121,11 @@ RELEASE_FILES = TEXT_FILES +
 	DATA_FILES + 
 	RAKE_TASKLIBS +
 	EXTRA_PKGFILES
+
+<% settings['excluded_pkgfiles'] ||= [] %>
+<% settings['excluded_pkgfiles'].each do |glob| %>
+RELEASE_FILES.exclude( "#{BASEDIR}/<%= glob %>" )
+<% end %>
 
 RELEASE_FILES << LOCAL_RAKEFILE.to_s if LOCAL_RAKEFILE.exist?
 
