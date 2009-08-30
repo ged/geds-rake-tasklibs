@@ -46,7 +46,7 @@ unless defined?( HG_DOTDIR )
 
 		### Generate a changelog.
 		def make_changelog
-			log = IO.read( '|-' ) or exec 'hg', 'log', '--style', 'compact'
+			log = IO.read( '|-' ) or exec 'hg', 'log', '--style', 'changelog'
 			return log
 		end
 
