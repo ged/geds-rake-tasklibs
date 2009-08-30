@@ -133,3 +133,12 @@ end
 
 
 
+desc "Add development depdendencies to the gemspec -- this is meant to be chained " +
+     "together with :gem"
+task :include_dev_dependencies do
+	DEVELOPMENT_DEPENDENCIES.each do |name, version|
+		version = '>= 0' if version.length.zero?
+		GEMSPEC.add_development_dependency( name, version )
+	end
+end
+

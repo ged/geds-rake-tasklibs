@@ -1,6 +1,8 @@
 # 
 # Mercurial Rake Tasks
 
+require 'enumerator'
+
 # 
 # Authors:
 # * Michael Granger <ged@FaerieMUD.org>
@@ -27,7 +29,7 @@ unless defined?( HG_DOTDIR )
 
 		### Generate a commit log from a diff and return it as a String.
 		def make_commit_log
-			diff = IO.read( '|-' ) or exec 'hg', 'diff'
+			diff = read_command_output( 'hg', 'diff' )
 			fail "No differences." if diff.empty?
 
 			return diff
@@ -46,25 +48,42 @@ unless defined?( HG_DOTDIR )
 
 		### Generate a changelog.
 		def make_changelog
-			log = IO.read( '|-' ) or exec 'hg', 'log', '--style', 'changelog'
+			log = read_command_output( 'hg', 'log', '--style', 'compact' )
 			return log
 		end
 
 		### Get the 'tip' info and return it as a Hash
 		def get_tip_info
-			data = IO.read( '|-' ) or exec 'hg', 'tip'
+			data = read_command_output( 'hg', 'tip' )
 			return YAML.load( data )
 		end
 
 		### Return the ID for the current rev
 		def get_current_rev
-			id = IO.read( '|-' ) or exec 'hg', '-q', 'identify'
+			id = read_command_output( 'hg', '-q', 'identify' )
 			return id.chomp
+		end
+
+		### Read the list of existing tags and return them as an Array
+		def get_tags
+			taglist = read_command_output( 'hg', 'tags' )
+			return taglist.split( /\n/ )
+		end
+
+
+		### Read any remote repo paths known by the current repo and return them as a hash.
+		def get_repo_paths
+			paths = {}
+			pathspec = read_command_output( 'hg', 'paths' )
+			pathspec.split.each_slice( 3 ) do |name, _, url|
+				paths[ name ] = url
+			end
+			return paths
 		end
 
 		### Return the list of files which are of status 'unknown'
 		def get_unknown_files
-			list = IO.read( '|-' ) or exec 'hg', 'status', '-un', '--no-color'
+			list = read_command_output( 'hg', 'status', '-un', '--no-color' )
 			list = list.split( /\n/ )
 
 			trace "New files: %p" % [ list ]
@@ -82,7 +101,7 @@ unless defined?( HG_DOTDIR )
 		end
 
 
-		### Add the list of +pathnames+ to the svn:ignore list.
+		### Add the list of +pathnames+ to the .hgignore list.
 		def hg_ignore_files( *pathnames )
 			patterns = pathnames.flatten.collect do |path|
 				'^' + Regexp.escape(path) + '$'
@@ -126,12 +145,28 @@ unless defined?( HG_DOTDIR )
 	namespace :hg do
 		include MercurialHelpers
 
+		desc "Prepare for a new release"
 		task :prep_release do
-			# Get the rev for the tag name
-			# Look for an existing tag with that rev, and if it exists abort
-			# Tag the current rev
+			tags = get_tags()
+			rev = get_current_rev()
+
+			# Look for a tag for the current release version, and if it exists abort
+			if tags.include?( PKG_VERSION )
+				error "Version #{PKG_VERSION} already has a tag. Did you mean " +
+					"to increment the version in #{VERSION_FILE}?"
+				fail
+			end
+
 			# Sign the current rev
+			log "Signing rev #{rev}"
+			run 'hg', 'sign'
+
+			# Tag the current rev
+			log "Tagging rev #{rev} as #{PKG_VERSION}"
+			run 'hg', 'tag', PKG_VERSION
+
 			# Offer to push
+			Rake::Task['hg:push'].invoke
 		end
 
 		desc "Check for new files and offer to add/ignore/delete them."
@@ -173,6 +208,7 @@ unless defined?( HG_DOTDIR )
 		task :add => :newfiles
 
 
+		desc "Check the current code in if tests pass"
 		task :checkin => ['hg:newfiles', 'test', COMMIT_MSG_FILE] do
 			targets = get_target_args()
 			$stderr.puts '---', File.read( COMMIT_MSG_FILE ), '---'
@@ -180,11 +216,24 @@ unless defined?( HG_DOTDIR )
 				run 'hg', 'ci', '-l', COMMIT_MSG_FILE, targets
 				rm_f COMMIT_MSG_FILE
 			end
+			Rake::Task['hg:push'].invoke
 		end
 		task :commit => :checkin
 		task :ci => :checkin
 
 		CLEAN.include( COMMIT_MSG_FILE )
+
+		desc "Push to the default origin repo (if there is one)"
+		task :push do
+			paths = get_repo_paths()
+			if origin_url = paths['default']
+				ask_for_confirmation( "Push to '#{origin_url}'?", false ) do
+					run 'hg', 'push'
+				end
+			else
+				trace "Skipping push: No 'default' path."
+			end
+		end
 
 	end
 
@@ -197,7 +246,7 @@ unless defined?( HG_DOTDIR )
 		task :checkin => 'hg:ci'
 
 		desc "Tag and sign revision before a release"
-		task :prep_release => 'hg:tag'
+		task :prep_release => 'hg:prep_release'
 
 		file COMMIT_MSG_FILE do
 			edit_commit_log()

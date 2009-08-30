@@ -38,15 +38,13 @@ PKG_VERSION   = VERSION_FILE.read[ /VERSION = '(\d+\.\d+\.\d+)'/, 1 ]
 PKG_FILE_NAME = "#{PKG_NAME.downcase}-#{PKG_VERSION}"
 GEM_FILE_NAME = "#{PKG_FILE_NAME}.gem"
 
-# Subversion constants -- directory names for releases and tags
-SVN_TRUNK_DIR    = 'trunk'
-SVN_RELEASES_DIR = 'releases'
-SVN_BRANCHES_DIR = 'branches'
-SVN_TAGS_DIR     = 'tags'
+DEFAULT_EDITOR  = 'vi'
+COMMIT_MSG_FILE = 'commit-msg.txt'
+FILE_INDENT     = " " * 12
+LOG_INDENT      = " " * 3
 
-### Load some task libraries that need to be loaded early
-require RAKE_TASKDIR + 'helpers.rb'
-require RAKE_TASKDIR + 'svn.rb'
+import RAKE_TASKDIR + 'helpers.rb'
+import RAKE_TASKDIR + 'hg.rb'
 
 $trace = Rake.application.options.trace ? true : false
 $dryrun = Rake.application.options.dryrun ? true : false

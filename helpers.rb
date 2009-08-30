@@ -68,13 +68,19 @@ def trace( *msg )
 end
 
 
+### Return the specified args as a string, quoting any that have a space.
+def quotelist( *args )
+	return args.flatten.collect {|part| part =~ /\s/ ? part.inspect : part}
+end
+
+
 ### Run the specified command +cmd+ with system(), failing if the execution
 ### fails.
 def run( *cmd )
 	cmd.flatten!
 
 	if cmd.length > 1
-		trace( cmd.collect {|part| part =~ /\s/ ? part.inspect : part} ) 
+		trace( quotelist(*cmd) )
 	else
 		trace( cmd )
 	end
@@ -87,6 +93,15 @@ def run( *cmd )
 			fail "Command failed: [%s]" % [cmd.join(' ')]
 		end
 	end
+end
+
+
+### Run the given +cmd+ with the specified +args+ without interpolation by the shell and
+### return anything written to its STDOUT.
+def read_command_output( cmd, *args )
+	trace "Reading output from: %s" % [ cmd, quotelist(cmd, *args) ]
+	output = IO.read( '|-' ) or exec cmd, *args
+	return output
 end
 
 
