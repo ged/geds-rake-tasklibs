@@ -18,8 +18,7 @@ end
 
 
 ### A filter for inline example code or command-line sessions -- does
-### syntax-highlighting (via CodeRay), syntax-checking for some languages, and
-### captioning.
+### syntax-checking for some languages and captioning.
 ### 
 ### Examples are enclosed in XML processing instructions like so:
 ###
@@ -66,8 +65,6 @@ class ExamplesFilter < Manual::Page::Filter
 	
 	EndPI = %r{ <\? end (?: \s+ example )? \s* \?> }x
 
-	RENDERER_OPTIONS = YAML.load( File.read(__FILE__).split(/^__END__/, 2).last )
-	
 
 	### Defer loading of dependenies until the filter is loaded
 	def initialize( *args )
@@ -207,12 +204,12 @@ class ExamplesFilter < Manual::Page::Filter
 
 		options = Rcodetools::XMPFilter::INITIALIZE_OPTS.dup
 		options[:include_paths] |= [ libdir.to_s, extdir.to_s ]
-		options[:width] = 80
+		options[:width] = 60
 
 		if page.config['example_prelude']
 			prelude = page.config['example_prelude']
 			trace "  prepending prelude:\n#{prelude}"
-			source = prelude.strip + "\n\n" + source.strip
+			source = prelude.strip + "\n" + source.strip
 		else
 			trace "  no prelude; page config is: %p" % [ page.config ]
 		end
