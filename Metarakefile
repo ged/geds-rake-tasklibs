@@ -144,6 +144,7 @@ def generate_file_from_template( file, template_file, force=false )
 		return unless ask_for_confirmation( "Replace existing #{file.basename}?", false ) { true }
 	end
 
+	trace "Generating #{file} from #{template_file}..."
 	template = ERB.new( template_file.read, nil, '<>' )
 	settings = YAML.load_file( PROJECT_SETTINGS_FILE )
 
