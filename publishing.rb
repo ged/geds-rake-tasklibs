@@ -116,15 +116,12 @@ begin
 		desc "Generate the release notes"
 		task :notes => [RELEASE_NOTES_FILE]
 		file RELEASE_NOTES_FILE do |task|
-			last_rel_tag = get_latest_release_tag() or
-				fail ">>> No releases tagged! Try running 'rake prep_release' first"
-			trace "Last release tag is: %p" % [ last_rel_tag ]
-			start = get_last_changed_rev( last_rel_tag ) || 1
-			trace "Starting rev is: %p" % [ start ]
-			log_output = make_svn_log( '.', start, 'HEAD' )
+			last_tag = MercurialHelpers.get_tags.grep( /\d+\.\d+\.\d+/ ).
+				collect {|ver| vvec(ver) }.sort.last.unpack( 'N*' ).join('.')
 
 			File.open( task.name, File::WRONLY|File::TRUNC|File::CREAT ) do |fh|
-				fh.print( log_output )
+				fh.puts "Release Notes for #{PKG_VERSION}",
+				        "--------------------------------", '', ''
 			end
 
 			edit task.name

@@ -425,3 +425,10 @@ def in_subdirectory( subdir )
 end
 
 
+### Make an easily-comparable version vector out of +ver+ and return it.
+def vvec( ver )
+	return ver.split('.').collect {|char| char.to_i }.pack('N*')
+end
+
+
+
