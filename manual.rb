@@ -69,7 +69,7 @@ module Manual
 		DEFAULT_CONFIG = {
 			'filters' => [ 'erb', 'links', 'textile' ],
 			'layout'  => 'default.page',
-			'cleanup' => true,
+			'cleanup' => false,
 		  }.freeze
 
 		# Pattern to match a source page with a YAML header
