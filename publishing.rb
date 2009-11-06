@@ -34,7 +34,7 @@ class Net::SMTP
 
 	def do_ssl_start( helodomain, user, secret, authtype )
 		raise IOError, 'SMTP session already started' if @started
-		check_auth_args user, secret, authtype if user or secret
+		check_auth_args user, secret if user or secret
 
 		# Open the connection
       	@debug_output << "opening connection to #{@address}...\n" if @debug_output
