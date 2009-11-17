@@ -264,7 +264,9 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		name.split(/\s+/).reverse }.join(', ').dump %>
 	gem.email             = <%= settings['authors'].values.inspect %>
 	gem.homepage          = '<%= settings['project_homepage'] %>'
-	gem.rubyforge_project = RUBYFORGE_PROJECT
+
+	# Apparently this isn't actually the 'project'?
+	gem.rubyforge_project = RUBYFORGE_GROUP
 
 	gem.has_rdoc          = true
 	gem.rdoc_options      = RDOC_OPTIONS
