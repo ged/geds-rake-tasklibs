@@ -34,6 +34,14 @@ rescue LoadError
 	end
 end
 
+begin
+	require 'rubyfems'
+rescue LoadError
+	module Gem
+		class Specification; end
+	end
+end
+
 require 'rbconfig'
 require 'rake'
 require 'rake/testtask'
