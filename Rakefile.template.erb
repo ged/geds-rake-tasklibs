@@ -1,4 +1,4 @@
-#!rake
+#!rake -*- ruby -*-
 #
 # <%= settings['project_name'] %> rakefile
 #
@@ -137,6 +137,13 @@ RELEASE_FILES.exclude( "#{BASEDIR}/<%= glob %>" )
 
 RELEASE_FILES << LOCAL_RAKEFILE.to_s if LOCAL_RAKEFILE.exist?
 
+<% settings['release_mailto'] ||= [] %>
+RELEASE_ANNOUNCE_ADDRESSES = [
+<% settings['release_mailto'].each do |addr| %>
+	<%= addr.dump %>,
+<% end %>
+]
+
 COVERAGE_MINIMUM = ENV['COVERAGE_MINIMUM'] ? Float( ENV['COVERAGE_MINIMUM'] ) : 85.0
 RCOV_EXCLUDES = 'spec,tests,/Library/Ruby,/var/lib,/usr/local/lib'
 RCOV_OPTS = [
@@ -192,7 +199,11 @@ RDOC_OPTIONS = [
   ]
 
 # Release constants
+<% if settings['release_smtphost'] %>
+SMTP_HOST = <%= settings['release_smtphost'].dump %>
+<% else %>
 SMTP_HOST = 'mail.faeriemud.org'
+<% end %>
 SMTP_PORT = 465 # SMTP + SSL
 
 # Project constants

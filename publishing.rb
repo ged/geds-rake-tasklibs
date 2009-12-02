@@ -85,7 +85,6 @@ begin
 	require 'tmail'
 	require 'net/smtp'
 	require 'etc'
-	require 'rubyforge'
 	require 'socket'
 	require 'text/format'
 
@@ -195,12 +194,12 @@ begin
 		desc 'Send out a release announcement'
 		task :announce => [RELEASE_ANNOUNCE_FILE] do
 			email         = TMail::Mail.new
-			if $publish_privately
+			if $publish_privately || RELEASE_ANNOUNCE_ADDRESSES.empty?
 				trace "Sending private announce mail"
 				email.to = 'rubymage@gmail.com'
 			else
 				trace "Sending public announce mail"
-				email.to  = 'Ruby-Talk List <ruby-talk@ruby-lang.org>'
+				email.to  = RELEASE_ANNOUNCE_ADDRESSES
 				email.bcc = 'rubymage@gmail.com'
 			end
 			email.from    = GEMSPEC.email
@@ -236,7 +235,7 @@ begin
 		end
 
 
-		desc 'Publish the new release to RubyForge'
+		desc 'Publish the new release to Gemcutter'
 		task :publish => [:clean, :gem, :notes] do |task|
 			gempath = PKGDIR + GEM_FILE_NAME
 			sh 'gem', 'push', gempath

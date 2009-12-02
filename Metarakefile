@@ -123,6 +123,7 @@ def prompt_user_for_setting( question, default )
 		else
 			answer = prompt( prompttext, &validation_block )
 		end
+		answer = postproc.call( answer ) if postproc
 	end
 
 	return field, answer
