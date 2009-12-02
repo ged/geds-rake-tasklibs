@@ -35,7 +35,7 @@ rescue LoadError
 end
 
 begin
-	require 'rubyfems'
+	require 'rubygems'
 rescue LoadError
 	module Gem
 		class Specification; end
@@ -170,12 +170,12 @@ end
 
 require RAKE_TASKDIR + 'helpers.rb'
 
-# Define some constants that depend on the 'svn' tasklib
+# Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
-	id = IO.read('|-') or exec hg.to_s, 'id', '-n'
+	id = IO.read('|-') or exec hg.to_s, 'id', '-i'
 	PKG_BUILD = id.chomp[ /^[[:xdigit:]]+/ ]
 else
-	PKG_BUILD = 0
+	PKG_BUILD = 'b'
 end
 SNAPSHOT_PKG_NAME = "#{PKG_FILE_NAME}.#{PKG_BUILD}"
 SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
@@ -202,10 +202,6 @@ PROJECT_DOCDIR = "#{PROJECT_PUBDIR}/#{PKG_NAME}"
 PROJECT_SCPPUBURL = "#{PROJECT_HOST}:#{PROJECT_PUBDIR}"
 PROJECT_SCPDOCURL = "#{PROJECT_HOST}:#{PROJECT_DOCDIR}"
 
-# Rubyforge stuff
-RUBYFORGE_GROUP = '<%= settings['rubyforge_group'] %>'
-RUBYFORGE_PROJECT = '<%= settings['rubyforge_project'] %>'
-
 # Gem dependencies: gemname => version
 DEPENDENCIES = {
 <%	settings['project_dependencies'] ||= {} %>
@@ -222,7 +218,6 @@ DEVELOPMENT_DEPENDENCIES = {
 	'rdoc'        => '>= 2.4.3',
 	'RedCloth'    => '>= 4.0.3',
 	'rspec'       => '>= 1.2.6',
-	'rubyforge'   => '>= 0',
 	'termios'     => '>= 0',
 	'text-format' => '>= 1.0.0',
 	'tmail'       => '>= 1.2.3.1',
@@ -264,9 +259,6 @@ GEMSPEC   = Gem::Specification.new do |gem|
 		name.split(/\s+/).reverse }.join(', ').dump %>
 	gem.email             = <%= settings['authors'].values.inspect %>
 	gem.homepage          = '<%= settings['project_homepage'] %>'
-
-	# Apparently this isn't actually the 'project'?
-	gem.rubyforge_project = RUBYFORGE_GROUP
 
 	gem.has_rdoc          = true
 	gem.rdoc_options      = RDOC_OPTIONS

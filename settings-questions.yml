@@ -82,9 +82,6 @@
         }.flatten
         Hash[ *pairs ]
 
-- rubyforge_group: Rubyforge Group
-- rubyforge_project: Rubyforge Project Name
-
 - additional_pkgfiles:
     multiline: true
     prompt: Additional files to add to the distribution (globs work)

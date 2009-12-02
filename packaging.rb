@@ -1,14 +1,12 @@
-# 
-# Packaging Rake Tasks
-
-# 
+#####################################################################
+###	P A C K A G I N G   T A S K S
+#####################################################################
 
 require 'rbconfig'
 require 'pathname'
 require 'rake/packagetask'
 require 'rake/gempackagetask'
 
-require Pathname( __FILE__ ).dirname.expand_path + 'hg.rb'
 
 include Config
 
