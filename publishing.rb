@@ -194,6 +194,7 @@ begin
 		desc 'Send out a release announcement'
 		task :announce => [RELEASE_ANNOUNCE_FILE] do
 			email         = TMail::Mail.new
+
 			if $publish_privately || RELEASE_ANNOUNCE_ADDRESSES.empty?
 				trace "Sending private announce mail"
 				email.to = 'rubymage@gmail.com'
@@ -202,6 +203,7 @@ begin
 				email.to  = RELEASE_ANNOUNCE_ADDRESSES
 				email.bcc = 'rubymage@gmail.com'
 			end
+
 			email.from    = GEMSPEC.email
 			email.subject = "[ANN] #{PKG_NAME} #{PKG_VERSION}"
 			email.body    = File.read( RELEASE_ANNOUNCE_FILE )
@@ -214,7 +216,7 @@ begin
 			     email.to_s,
 			     '---'
 
-				ask_for_confirmation( "Will send via #{SMTP_HOST}." ) do
+			ask_for_confirmation( "Will send via #{SMTP_HOST}." ) do
 				pwent = Etc.getpwuid( Process.euid )
 				curuser = pwent ? pwent.name : 'unknown'
 				username = prompt_with_default( "SMTP user", curuser )
@@ -237,8 +239,10 @@ begin
 
 		desc 'Publish the new release to Gemcutter'
 		task :publish => [:clean, :gem, :notes] do |task|
-			gempath = PKGDIR + GEM_FILE_NAME
-			sh 'gem', 'push', gempath
+			ask_for_confirmation( "Publish #{GEM_FILE_NAME} to Gemcutter?", false ) do
+				gempath = PKGDIR + GEM_FILE_NAME
+				sh 'gem', 'push', gempath
+			end
 		end
 	end
 

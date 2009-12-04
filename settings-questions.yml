@@ -15,9 +15,10 @@
 
 - release_mailto:
     prompt: |-
-        Email address/es to send release announcements to, e.g.,
-          Ruby-Talk List <ruby-talk@ruby-lang.org>
+        Where should release announcements be sent?
+          e.g., Ruby-Talk List <ruby-talk@ruby-lang.org>
     multiline: true
+    post-process: "args.collect {|line| line.chomp }.join(\"\n\")"
 - release_smtphost: SMTP Host
 
 - post_install_message:

@@ -140,7 +140,7 @@ RELEASE_FILES << LOCAL_RAKEFILE.to_s if LOCAL_RAKEFILE.exist?
 <% settings['release_mailto'] ||= [] %>
 RELEASE_ANNOUNCE_ADDRESSES = [
 <% settings['release_mailto'].each do |addr| %>
-	<%= addr.dump %>,
+	<%= addr.chomp.dump %>,
 <% end %>
 ]
 
