@@ -179,10 +179,10 @@ require RAKE_TASKDIR + 'helpers.rb'
 
 # Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
-	id = IO.read('|-') or exec hg.to_s, 'id', '-i'
-	PKG_BUILD = id.chomp[ /^[[:xdigit:]]+/ ]
+	id = IO.read('|-') or exec hg.to_s, 'id', '-n'
+	PKG_BUILD = 'pre' + id.chomp[ /^[[:xdigit:]]+/ ]
 else
-	PKG_BUILD = 'b'
+	PKG_BUILD = 'pre0'
 end
 SNAPSHOT_PKG_NAME = "#{PKG_FILE_NAME}.#{PKG_BUILD}"
 SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
@@ -333,7 +333,7 @@ task :default  => [:clean, :local, :spec, :rdoc, :package]
 task :local
 
 ### Task: clean
-CLEAN.include 'coverage', '**/*.orig'
+CLEAN.include 'coverage', '**/*.orig', '**/*.rej'
 CLOBBER.include 'artifacts', 'coverage.info', PKGDIR
 
 ### Task: changelog
