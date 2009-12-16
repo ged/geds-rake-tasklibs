@@ -163,7 +163,7 @@ if !RAKE_TASKDIR.exist?
 
 	if ans =~ /^y/i
 		$stderr.puts "Okay, fetching #{RAKE_TASKLIBS_URL} into #{RAKE_TASKDIR}..."
-		system 'hg', 'clone', RAKE_TASKLIBS_URL, RAKE_TASKDIR
+		system 'hg', 'clone', RAKE_TASKLIBS_URL, "./#{RAKE_TASKDIR}"
 		if ! $?.success?
 			fail "Damn. That didn't work. Giving up; maybe try manually fetching?"
 		end
