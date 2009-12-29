@@ -180,7 +180,7 @@ require RAKE_TASKDIR + 'helpers.rb'
 # Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
 	id = IO.read('|-') or exec hg.to_s, 'id', '-n'
-	PKG_BUILD = 'pre' + id.chomp[ /^[[:xdigit:]]+/ ]
+	PKG_BUILD = 'pre' + (id.chomp[ /^[[:xdigit:]]+/ ] || '1')
 else
 	PKG_BUILD = 'pre0'
 end
