@@ -7,10 +7,9 @@
 	settings['project_summary'].sub( /^([A-Z])/ ) { $1.downcase } %>. 
 <% end %>
 
-You can check out the current development source with Subversion from the
-following URL:
+You can check out the current development source with Mercurial like so:
 
-    http://repo.deveiate.org/<%= settings['project_name'].gsub( /\s+/, '' ) %>
+    hg clone http://repo.deveiate.org/<%= settings['project_name'].gsub( /\s+/, '' ) %>
 
 You can submit bug reports, suggestions, and read more about future plans at the
 project page:
