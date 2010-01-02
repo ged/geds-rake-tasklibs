@@ -208,8 +208,20 @@ unless defined?( HG_DOTDIR )
 		task :add => :newfiles
 
 
+		desc "Pull and update from the default repo"
+		task :pull do
+			paths = get_repo_paths()
+			if origin_url = paths['default']
+				ask_for_confirmation( "Pull and update from '#{origin_url}'?", false ) do
+					run 'hg', 'pull', '-u'
+				end
+			else
+				trace "Skipping pull: No 'default' path."
+			end
+		end
+
 		desc "Check the current code in if tests pass"
-		task :checkin => ['hg:newfiles', 'test', COMMIT_MSG_FILE] do
+		task :checkin => ['hg:pull', 'hg:newfiles', 'test', COMMIT_MSG_FILE] do
 			targets = get_target_args()
 			$stderr.puts '---', File.read( COMMIT_MSG_FILE ), '---'
 			ask_for_confirmation( "Continue with checkin?" ) do
