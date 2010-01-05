@@ -174,6 +174,7 @@ end
 
 ### Return the fully-qualified path to the specified +program+ in the PATH.
 def which( program )
+	return nil unless ENV['PATH']
 	ENV['PATH'].split(/:/).
 		collect {|dir| Pathname.new(dir) + program }.
 		find {|path| path.exist? && path.executable? }
