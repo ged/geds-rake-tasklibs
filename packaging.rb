@@ -9,6 +9,13 @@ require 'rubygems/package_task'
 
 include Config
 
+### Task: prerelease
+desc "Append the package build number to package versions"
+task :prerelease do
+	GEMSPEC.version.version += ".#{PKG_BUILD}"
+end
+
+
 ### Task: gem
 ### Task: package
 Rake::PackageTask.new( PKG_NAME, PKG_VERSION ) do |task|
@@ -20,21 +27,6 @@ Rake::PackageTask.new( PKG_NAME, PKG_VERSION ) do |task|
 end
 task :package => [:gem]
 
-
-### Task: gem
-# gempath = PKGDIR + GEM_FILE_NAME
-# 
-# desc "Build a RubyGem package (#{GEM_FILE_NAME})"
-# task :gem => gempath.to_s
-# file gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
-# 	when_writing( "Creating GEM" ) do
-# 		Gem::Builder.new( GEMSPEC ).build
-# 		verbose( true ) do
-# 			mv GEM_FILE_NAME, gempath
-# 		end
-# 	end
-# end
-# 
 
 Gem::PackageTask.new( GEMSPEC ) do |pkg|
 	pkg.need_zip = true
