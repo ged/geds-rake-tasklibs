@@ -4,8 +4,7 @@
 
 require 'rbconfig'
 require 'pathname'
-require 'rake/packagetask'
-require 'rake/gempackagetask'
+require 'rubygems/package_task'
 
 
 include Config
@@ -23,33 +22,23 @@ task :package => [:gem]
 
 
 ### Task: gem
-gempath = PKGDIR + GEM_FILE_NAME
+# gempath = PKGDIR + GEM_FILE_NAME
+# 
+# desc "Build a RubyGem package (#{GEM_FILE_NAME})"
+# task :gem => gempath.to_s
+# file gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
+# 	when_writing( "Creating GEM" ) do
+# 		Gem::Builder.new( GEMSPEC ).build
+# 		verbose( true ) do
+# 			mv GEM_FILE_NAME, gempath
+# 		end
+# 	end
+# end
+# 
 
-desc "Build a RubyGem package (#{GEM_FILE_NAME})"
-task :gem => gempath.to_s
-file gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
-	when_writing( "Creating GEM" ) do
-		Gem::Builder.new( GEMSPEC ).build
-		verbose( true ) do
-			mv GEM_FILE_NAME, gempath
-		end
-	end
-end
-
-
-prerelease_gempath = PKGDIR + SNAPSHOT_GEM_NAME
-
-desc "Build a pre-release RubyGem package"
-task :prerelease_gem => prerelease_gempath.to_s
-file prerelease_gempath.to_s => [PKGDIR.to_s] + GEMSPEC.files do
-	when_writing( "Creating prerelease GEM" ) do
-		gemspec = GEMSPEC.clone
-		gemspec.version = Gem::Version.create( "%s.%s" % [GEMSPEC.version, PKG_BUILD] )
-		Gem::Builder.new( gemspec ).build
-		verbose( true ) do
-			mv SNAPSHOT_GEM_NAME, prerelease_gempath
-		end
-	end
+Gem::PackageTask.new( GEMSPEC ) do |pkg|
+	pkg.need_zip = true
+	pkg.need_tar = true
 end
 
 
