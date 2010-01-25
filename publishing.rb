@@ -34,7 +34,13 @@ class Net::SMTP
 
 	def do_ssl_start( helodomain, user, secret, authtype )
 		raise IOError, 'SMTP session already started' if @started
-		check_auth_args( user, secret, 'plain' ) if user or secret
+		if user or secret
+			if self.method( :check_auth_args ).arity == 3
+				check_auth_args( user, secret, authtype )
+			else
+				check_auth_args( user, secret )
+			end
+		end
 
 		# Open the connection
       	@debug_output << "opening connection to #{@address}...\n" if @debug_output
@@ -203,8 +209,7 @@ begin
 				email.to  = RELEASE_ANNOUNCE_ADDRESSES
 				email.bcc = 'rubymage@gmail.com'
 			end
-
-			email.from    = GEMSPEC.email
+			email.from    = 'Michael Granger <mgranger@laika.com>'
 			email.subject = "[ANN] #{PKG_NAME} #{PKG_VERSION}"
 			email.body    = File.read( RELEASE_ANNOUNCE_FILE )
 			email.date    = Time.new
@@ -216,7 +221,7 @@ begin
 			     email.to_s,
 			     '---'
 
-			ask_for_confirmation( "Will send via #{SMTP_HOST}." ) do
+				ask_for_confirmation( "Will send via #{SMTP_HOST}." ) do
 				pwent = Etc.getpwuid( Process.euid )
 				curuser = pwent ? pwent.name : 'unknown'
 				username = prompt_with_default( "SMTP user", curuser )
