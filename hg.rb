@@ -22,6 +22,8 @@ unless defined?( HG_DOTDIR )
 	### 
 
 	module MercurialHelpers
+		require './helpers.rb' unless defined?( RakefileHelpers )
+		include RakefileHelpers
 
 		###############
 		module_function

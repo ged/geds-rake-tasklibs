@@ -202,6 +202,7 @@ RDOC_OPTIONS = [
 YARD_OPTIONS = [
     '--protected',
     '-r', 'README',
+	'--exclude', 'extconf\\.rb',
     '--files', 'ChangeLog,LICENSE',
 	'--output-dir', API_DOCSDIR.to_s,
   ]
