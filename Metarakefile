@@ -19,6 +19,7 @@ require 'rake/clean'
 
 tasklibdir = Pathname.new( __FILE__ ).dirname.relative_path_from( Pathname.getwd )
 require "#{tasklibdir}/helpers"
+include RakefileHelpers
 
 $trace = Rake.application.options.trace ? true : false
 $dryrun = Rake.application.options.dryrun ? true : false

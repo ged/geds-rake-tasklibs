@@ -45,6 +45,7 @@ begin
 	class YARD::CodeObjects::Base; include YardGlobals; end
 	class YARD::Handlers::Base; include YardGlobals; end
 	class YARD::Serializers::Base; include YardGlobals; end
+	module YARD::Templates::Helpers::ModuleHelper; include YardGlobals; end
 	# </metamonkeypatch>
 
 	YARD_OPTIONS = [] unless defined?( YARD_OPTIONS )
@@ -60,7 +61,7 @@ rescue LoadError
 	RDoc::Task.new( :apidocs ) do |task|
 		task.main     = "README"
 		task.rdoc_files.include( DOCFILES )
-		task.rdoc_dir = DOCDIR.to_s
+		task.rdoc_dir = API_DOCSDIR
 		task.options  = RDOC_OPTIONS
 	end
 end

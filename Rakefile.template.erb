@@ -177,6 +177,7 @@ if !RAKE_TASKDIR.exist?
 end
 
 require RAKE_TASKDIR + 'helpers.rb'
+include RakefileHelpers
 
 # Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
@@ -199,8 +200,10 @@ RDOC_OPTIONS = [
 	'-W', '<%= settings['project_homepage'].chomp('/') %>/browser/'
   ]
 YARD_OPTIONS = [
-	'--protected',
-	'--readme', 'README',
+    '--protected',
+    '-r', 'README',
+    '--files', 'ChangeLog,LICENSE',
+	'--output-dir', API_DOCSDIR.to_s,
   ]
 
 # Release constants
