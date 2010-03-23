@@ -147,7 +147,7 @@ module Manual
 
 			layout = self.config['layout'].sub( /\.page$/, '' )
 			templatepath = @layouts_dir + "#{layout}.page"
-			template = ERB.new( templatepath.read )
+			template = ERB.new( templatepath.read(:encoding => 'UTF-8') )
 			page = self
 
 			html = template.result( binding() )
@@ -565,7 +565,7 @@ module Manual
 				manual_pages = setup_page_conversion_tasks( sourcedir, outputdir, catalog )
 
 				desc "Build the manual"
-				task :build => [ :rdoc, :copy_resources, :copy_apidocs, :generate_pages ]
+				task :build => [ :apidocs, :copy_resources, :copy_apidocs, :generate_pages ]
 
 				task :clobber do
 					RakeFileUtils.verbose( $verbose ) do
@@ -686,8 +686,8 @@ module Manual
 			end
 
 			desc "Copy API documentation to the manual output directory"
-			task :copy_apidocs => :rdoc do
-				cp_r( RDOCDIR, outputdir )
+			task :copy_apidocs => :apidocs do
+				cp_r( API_DOCSDIR, outputdir )
 			end
 
 			# Now group all the resource file tasks into a containing task
@@ -713,7 +713,7 @@ if MANUALDIR.exist?
 
 		Manual::GenTask.new do |manual|
 			manual.metadata.version = PKG_VERSION
-			manual.metadata.api_dir = RDOCDIR
+			manual.metadata.api_dir = API_DOCSDIR
 			manual.output_dir = MANUALOUTPUTDIR
 			manual.base_dir = MANUALDIR
 			manual.source_dir = 'src'

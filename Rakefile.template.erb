@@ -13,11 +13,12 @@
 #
 
 BEGIN {
+	require 'rbconfig'
 	require 'pathname'
 	basedir = Pathname.new( __FILE__ ).dirname
 
 	libdir = basedir + "lib"
-	extdir = basedir + "ext"
+	extdir = libdir + Config::CONFIG['sitearch']
 
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
@@ -188,7 +189,7 @@ SNAPSHOT_PKG_NAME = "#{PKG_FILE_NAME}.#{PKG_BUILD}"
 SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
 
 # Documentation constants
-RDOCDIR = DOCSDIR + 'api'
+API_DOCSDIR = DOCSDIR + 'api'
 RDOC_OPTIONS = [
 	'-w', '4',
 	'-HN',
@@ -196,6 +197,10 @@ RDOC_OPTIONS = [
 	'-m', 'README',
 	'-t', PKG_NAME,
 	'-W', '<%= settings['project_homepage'].chomp('/') %>/browser/'
+  ]
+YARD_OPTIONS = [
+	'--protected',
+	'--readme', 'README',
   ]
 
 # Release constants
@@ -327,7 +332,7 @@ import LOCAL_RAKEFILE if LOCAL_RAKEFILE.exist?
 #####################################################################
 
 ### Default task
-task :default  => [:clean, :local, :spec, :rdoc, :package]
+task :default  => [:clean, :local, :spec, :apidocs, :package]
 
 ### Task the local Rakefile can append to -- no-op by default
 task :local
