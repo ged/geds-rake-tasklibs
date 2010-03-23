@@ -139,11 +139,11 @@ begin
 		task :project => :upload # the old name
 
 		desc "Publish the project docs to #{PROJECT_HOST}"
-		task :upload_docs => [ :rdoc ] do
+		task :upload_docs => [ :apidocs ] do
 			when_writing( "Publishing docs to #{PROJECT_SCPDOCURL}" ) do
 				log "Uploading API documentation to %s:%s" % [ PROJECT_HOST, PROJECT_DOCDIR ]
 				run 'ssh', PROJECT_HOST, "rm -rf #{PROJECT_DOCDIR}"
-				run 'scp', '-qCr', RDOCDIR, PROJECT_SCPDOCURL
+				run 'scp', '-qCr', API_DOCSDIR, PROJECT_SCPDOCURL
 			end
 		end
 
