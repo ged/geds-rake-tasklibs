@@ -66,4 +66,6 @@ rescue LoadError
 	end
 end
 
+# Need the DOCFILES to exist to build the API docs
+task :apidocs => DOCFILES
 
