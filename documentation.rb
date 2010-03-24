@@ -61,7 +61,7 @@ rescue LoadError
 	RDoc::Task.new( :apidocs ) do |task|
 		task.main     = "README"
 		task.rdoc_files.include( DOCFILES )
-		task.rdoc_dir = API_DOCSDIR
+		task.rdoc_dir = API_DOCSDIR.to_s
 		task.options  = RDOC_OPTIONS
 	end
 end
