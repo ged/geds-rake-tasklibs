@@ -13,6 +13,10 @@ $LOAD_PATH.unshift( DOCSLIB.to_s ) if DOCSLIB.exist?
 # Make relative string paths of all the stuff we need to generate docs for
 DOCFILES = Rake::FileList[ LIB_FILES + EXT_FILES + GEMSPEC.extra_rdoc_files ]
 
+# Documentation coverage constants
+COVERAGE_DIR    = BASEDIR + 'coverage'
+COVERAGE_REPORT = COVERAGE_DIR + 'documentation.txt'
+
 
 # Prefer YARD, fallback to RDoc
 begin
@@ -68,4 +72,5 @@ end
 
 # Need the DOCFILES to exist to build the API docs
 task :apidocs => DOCFILES
+
 

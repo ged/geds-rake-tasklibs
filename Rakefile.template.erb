@@ -200,6 +200,7 @@ RDOC_OPTIONS = [
 	'-W', '<%= settings['project_homepage'].chomp('/') %>/browser/'
   ]
 YARD_OPTIONS = [
+    '--no-private',
     '--protected',
     '-r', 'README',
 	'--exclude', 'extconf\\.rb',
