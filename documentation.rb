@@ -57,7 +57,7 @@ begin
 rescue LoadError
 	require 'rdoc/task'
 
-	desc "Build API documentation in #{DOCDIR}"
+	desc "Build API documentation in #{API_DOCSDIR}"
 	RDoc::Task.new( :apidocs ) do |task|
 		task.main     = "README"
 		task.rdoc_files.include( DOCFILES )
