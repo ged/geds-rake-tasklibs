@@ -182,9 +182,9 @@ include RakefileHelpers
 # Set the build ID if the mercurial executable is available
 if hg = which( 'hg' )
 	id = IO.read('|-') or exec hg.to_s, 'id', '-n'
-	PKG_BUILD = 'pre' + (id.chomp[ /^[[:xdigit:]]+/ ] || '1')
+	PKG_BUILD = "pre%03d" + (id.chomp[ /^[[:xdigit:]]+/ ] || '1')
 else
-	PKG_BUILD = 'pre0'
+	PKG_BUILD = 'pre000'
 end
 SNAPSHOT_PKG_NAME = "#{PKG_FILE_NAME}.#{PKG_BUILD}"
 SNAPSHOT_GEM_NAME = "#{SNAPSHOT_PKG_NAME}.gem"
