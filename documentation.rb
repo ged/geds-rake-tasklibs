@@ -48,16 +48,22 @@ begin
 	class YARD::Parser::CParser; include YardGlobals; end
 	class YARD::CodeObjects::Base; include YardGlobals; end
 	class YARD::Handlers::Base; include YardGlobals; end
+	class YARD::Handlers::Processor; include YardGlobals; end
 	class YARD::Serializers::Base; include YardGlobals; end
 	module YARD::Templates::Helpers::ModuleHelper; include YardGlobals; end
 	# </metamonkeypatch>
 
 	YARD_OPTIONS = [] unless defined?( YARD_OPTIONS )
 
-	YARD::Rake::YardocTask.new( :apidocs ) do |task|
+	yardoctask = YARD::Rake::YardocTask.new( :apidocs ) do |task|
 		task.files   = DOCFILES
 		task.options = YARD_OPTIONS
+		task.options << '--debug' << '--verbose' if $trace
 	end
+	yardoctask.before = lambda {
+		trace "Calling yardoc like:",
+			"  yardoc %s" % [ quotelist(yardoctask.options + yardoctask.files).join(' ') ]
+	}
 rescue LoadError
 	require 'rdoc/task'
 
