@@ -50,6 +50,7 @@ begin
 	class YARD::Handlers::Base; include YardGlobals; end
 	class YARD::Handlers::Processor; include YardGlobals; end
 	class YARD::Serializers::Base; include YardGlobals; end
+	class YARD::RegistryStore; include YardGlobals; end
 	module YARD::Templates::Helpers::ModuleHelper; include YardGlobals; end
 	# </metamonkeypatch>
 
@@ -64,6 +65,10 @@ begin
 		trace "Calling yardoc like:",
 			"  yardoc %s" % [ quotelist(yardoctask.options + yardoctask.files).join(' ') ]
 	}
+
+	YARDOC_CACHE = BASEDIR + '.yardoc'
+	CLOBBER.include( YARDOC_CACHE.to_s )
+
 rescue LoadError
 	require 'rdoc/task'
 
@@ -79,4 +84,5 @@ end
 # Need the DOCFILES to exist to build the API docs
 task :apidocs => DOCFILES
 
+CLEAN.include( API_DOCSDIR.to_s )
 
