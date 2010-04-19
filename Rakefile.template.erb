@@ -271,7 +271,7 @@ GEMSPEC   = Gem::Specification.new do |gem|
   	  ].join( "\n" )
 <% if settings['post_install_message'] && settings['post_install_message'] =~ /\S/ %>
 	gem.post_install_message = [
-<% for line in settings['post_install_message'] %>
+<% settings['post_install_message'].lines do |line| %>
 		<%= line.chomp.dump %>,
 <% end %>
 	  ].join( "\n" )
