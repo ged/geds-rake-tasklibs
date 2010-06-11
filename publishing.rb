@@ -209,7 +209,11 @@ begin
 				email.to  = RELEASE_ANNOUNCE_ADDRESSES
 				email.bcc = 'rubymage@gmail.com'
 			end
-			email.from    = 'Michael Granger <mgranger@laika.com>'
+
+			from = prompt_with_default( "Send announcement as:",
+				'Michael Granger <ged@FaerieMUD.org>' ) or fail
+
+			email.from    = from
 			email.subject = "[ANN] #{PKG_NAME} #{PKG_VERSION}"
 			email.body    = File.read( RELEASE_ANNOUNCE_FILE )
 			email.date    = Time.new
