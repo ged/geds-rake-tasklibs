@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 #####################################################################
 ###	G L O B A L   H E L P E R   F U N C T I O N S
 #####################################################################
@@ -6,7 +7,6 @@
 
 require 'pathname'
 require 'uri'
-require 'open3'
 
 begin
 	require 'readline'
@@ -54,9 +54,12 @@ module RakefileHelpers
 	CLEAR_CURRENT_LINE = "\e[2K"
 
 
-    ###############
-    module_function
-    ###############
+	TAR_OPTS = { :compression => :gzip }
+
+
+	###############
+	module_function
+	###############
 
 	### Output a logging message
 	def log( *msg )
@@ -388,6 +391,7 @@ module RakefileHelpers
 	### capture groups, those will be returned in an Array, else the whole matching line
 	### is returned.
 	def find_pattern_in_pipe( regexp, *cmd )
+		require 'open3'
 		output = []
 
 		log( cmd.collect {|part| part =~ /\s/ ? part.inspect : part} ) 
@@ -434,6 +438,63 @@ module RakefileHelpers
 	### Make an easily-comparable version vector out of +ver+ and return it.
 	def vvec( ver )
 		return ver.split('.').collect {|char| char.to_i }.pack('N*')
+	end
+
+
+	### Archive::Tar::Reader#extract (as of 0.9.0) is broken w.r.t.
+	### permissions, so we have to do this ourselves.
+	def untar( tarfile, targetdir )
+		require 'archive/tar'
+		targetdir = Pathname( targetdir )
+		raise "No such directory: #{targetdir}" unless targetdir.directory?
+
+		reader = Archive::Tar::Reader.new( tarfile.to_s, TAR_OPTS )
+
+		mkdir_p( targetdir )
+		reader.each( true ) do |header, body|
+			path = targetdir + header[:path]
+			# trace "Header is: %p" % [ header ]
+
+			case header[:type]
+			when :file
+				trace "  #{path}"
+				path.open( File::WRONLY|File::EXCL|File::CREAT|File::TRUNC, header[:mode] ) do |fio|
+					bytesize = header[:size]
+					fio.write( body[0,bytesize] )
+				end
+
+			when :directory
+				trace "  #{path}"
+				path.mkpath
+
+			when :link
+				linktarget = targetdir + header[:dest]
+				trace "  #{path} => #{linktarget}"
+				path.make_link( linktarget.to_s )
+
+			when :symlink
+				linktarget = targetdir + header[:dest]
+				trace "  #{path} -> #{linktarget}" 
+				path.make_symlink( linktarget )
+			end
+		end
+
+	end
+
+
+	### Extract the contents of the specified +zipfile+ into the given +targetdir+.
+	def unzip( zipfile, targetdir, *files )
+		require 'zip/zip'
+		targetdir = Pathname( targetdir )
+		raise "No such directory: #{targetdir}" unless targetdir.directory?
+
+		Zip::ZipFile.foreach( zipfile ) do |entry|
+			# trace "  entry is: %p" % [ entry ]
+			next unless files.empty? || files.include?( entry.name )
+			target_path = targetdir + entry.name
+			# trace "  would extract to: %s" % [ target_path ]
+			entry.extract( target_path ) { true }
+		end
 	end
 
 end # module Rakefile::Helpers
