@@ -51,6 +51,7 @@ begin
 	class YARD::Handlers::Processor; include YardGlobals; end
 	class YARD::Serializers::Base; include YardGlobals; end
 	class YARD::RegistryStore; include YardGlobals; end
+	class YARD::Docstring; include YardGlobals; end
 	module YARD::Templates::Helpers::ModuleHelper; include YardGlobals; end
 	# </metamonkeypatch>
 
