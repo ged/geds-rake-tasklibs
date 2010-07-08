@@ -147,9 +147,14 @@ module Manual
 
 			layout = self.config['layout'].sub( /\.page$/, '' )
 			templatepath = @layouts_dir + "#{layout}.page"
-			template = ERB.new( templatepath.read(:encoding => 'UTF-8') )
-			page = self
+			template = nil
+			if Object.const_defined?( :Encoding )
+				template = ERB.new( templatepath.read(:encoding => 'UTF-8') )
+			else
+				template = ERB.new( templatepath.read )
+			end
 
+			page = self
 			html = template.result( binding() )
 
 			# Use Tidy to clean up the html if 'cleanup' is turned on, but remove the Tidy

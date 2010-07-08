@@ -85,7 +85,7 @@ unless defined?( HG_DOTDIR )
 
 		### Return the list of files which are of status 'unknown'
 		def get_unknown_files
-			list = read_command_output( 'hg', 'status', '-un', '--no-color' )
+			list = read_command_output( 'hg', 'status', '-un', '--color', 'never' )
 			list = list.split( /\n/ )
 
 			trace "New files: %p" % [ list ]
