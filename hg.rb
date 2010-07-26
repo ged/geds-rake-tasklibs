@@ -215,12 +215,19 @@ unless defined?( HG_DOTDIR )
 			paths = get_repo_paths()
 			if origin_url = paths['default']
 				ask_for_confirmation( "Pull and update from '#{origin_url}'?", false ) do
-					run 'hg', 'pull', '-u'
+					Rake::Task['hg:pull_without_confirmation'].invoke
 				end
 			else
 				trace "Skipping pull: No 'default' path."
 			end
 		end
+
+
+		desc "Pull and update without confirmation"
+		task :pull_without_confirmation do
+			run 'hg', 'pull', '-u'
+		end
+
 
 		desc "Check the current code in if tests pass"
 		task :checkin => ['hg:pull', 'hg:newfiles', 'test', COMMIT_MSG_FILE] do
