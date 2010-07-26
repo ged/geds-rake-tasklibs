@@ -53,6 +53,31 @@ begin
 	class YARD::RegistryStore; include YardGlobals; end
 	class YARD::Docstring; include YardGlobals; end
 	module YARD::Templates::Helpers::ModuleHelper; include YardGlobals; end
+
+	if vvec(RUBY_VERSION) >= vvec("1.9.1")
+		# Monkeypatched to allow more than two '#' characters at the beginning
+		# of the comment line.
+		# Patched from yard-0.5.8
+		require 'yard/parser/ruby/ruby_parser'
+		class YARD::Parser::Ruby::RipperParser < Ripper
+			def on_comment(comment)
+				$stderr.puts "Adding comment: %p" % [ comment ]
+				visit_ns_token(:comment, comment)
+
+				comment = comment.gsub(/^\#+\s{0,1}/, '').chomp
+				append_comment = @comments[lineno - 1]
+
+				if append_comment && @comments_last_column == column
+					@comments.delete(lineno - 1)
+					comment = append_comment + "\n" + comment
+				end
+
+				@comments[lineno] = comment
+				@comments_last_column = column
+			end
+		end # class YARD::Parser::Ruby::RipperParser
+	end
+
 	# </metamonkeypatch>
 
 	YARD_OPTIONS = [] unless defined?( YARD_OPTIONS )
