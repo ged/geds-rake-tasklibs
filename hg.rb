@@ -249,11 +249,16 @@ unless defined?( HG_DOTDIR )
 			paths = get_repo_paths()
 			if origin_url = paths['default']
 				ask_for_confirmation( "Push to '#{origin_url}'?", false ) do
-					run 'hg', 'push'
+					Rake::Task['hg:push_without_confirmation'].invoke
 				end
 			else
 				trace "Skipping push: No 'default' path."
 			end
+		end
+
+		desc "Push to the default repo without confirmation"
+		task :push_without_confirmation do
+			run 'hg', 'push'
 		end
 
 	end
