@@ -18,6 +18,7 @@ BEGIN {
 	libdir = basedir + "lib"
 	extdir = libdir + Config::CONFIG['sitearch']
 
+	$LOAD_PATH.unshift( basedir.to_s ) unless $LOAD_PATH.include?( basedir.to_s )
 	$LOAD_PATH.unshift( libdir.to_s ) unless $LOAD_PATH.include?( libdir.to_s )
 	$LOAD_PATH.unshift( extdir.to_s ) unless $LOAD_PATH.include?( extdir.to_s )
 }
@@ -138,7 +139,7 @@ RELEASE_FILES << LOCAL_RAKEFILE.to_s if LOCAL_RAKEFILE.exist?
 
 <% settings['release_mailto'] ||= [] %>
 RELEASE_ANNOUNCE_ADDRESSES = [
-<% settings['release_mailto'].each do |addr| %>
+<% Array(settings['release_mailto']).each do |addr| %>
 	<%= addr.chomp.dump %>,
 <% end %>
 ]

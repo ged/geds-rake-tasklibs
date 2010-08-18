@@ -17,7 +17,7 @@ require 'rake/testtask'
 require 'rake/packagetask'
 require 'rake/clean'
 
-tasklibdir = Pathname.new( __FILE__ ).dirname.relative_path_from( Pathname.getwd )
+tasklibdir = Pathname.new( __FILE__ ).dirname.expand_path
 require "#{tasklibdir}/helpers"
 include RakefileHelpers
 
