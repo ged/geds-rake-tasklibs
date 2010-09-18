@@ -133,118 +133,134 @@ begin
 		end
 		CLOBBER.include( RELEASE_NOTES_FILE )
 
-
-		desc "Upload project documentation and packages to #{PROJECT_HOST}"
-		task :upload => [ :upload_docs, :upload_packages ]
-		task :project => :upload # the old name
-
-		desc "Publish the project docs to #{PROJECT_HOST}"
-		task :upload_docs => [ :apidocs ] do
-			when_writing( "Publishing docs to #{PROJECT_SCPDOCURL}" ) do
-				log "Uploading API documentation to %s:%s" % [ PROJECT_HOST, PROJECT_DOCDIR ]
-				run 'ssh', PROJECT_HOST, "rm -rf #{PROJECT_DOCDIR}"
-				run 'scp', '-qCr', API_DOCSDIR, PROJECT_SCPDOCURL
+		# Only define upload tasks if there's an upload host
+		if PROJECT_HOST.empty?
+			task :no_upload_host do
+				log "Skipping upload: no upload host."
 			end
-		end
+			task :upload => :no_upload_host
+			task :upload_docs => :no_upload_host
+			task :upload_packages => :no_upload_host
+		else
+			desc "Upload project documentation and packages to #{PROJECT_HOST}"
+			task :upload => [ :upload_docs, :upload_packages ]
+			task :project => :upload # the old name
 
-		desc "Publish the project packages to #{PROJECT_HOST}"
-		task :upload_packages => [ :package ] do
-			when_writing( "Uploading packages") do
-				pkgs = Pathname.glob( PKGDIR + "#{PKG_FILE_NAME}.{gem,tar.gz,tar.bz2,zip}" )
-				log "Uploading %d packages to #{PROJECT_SCPPUBURL}" % [ pkgs.length ]
-				pkgs.each do |pkgfile|
-					run 'scp', '-qC', pkgfile, PROJECT_SCPPUBURL
-                end
-            end
-		end
-
-
-		file RELEASE_ANNOUNCE_FILE => [RELEASE_NOTES_FILE] do |task|
-			relnotes = File.read( RELEASE_NOTES_FILE )
-			announce_body = %{
-
-				Version #{PKG_VERSION} of #{PKG_NAME} has been released.
-
-				#{Text::Format.new(:first_indent => 0).format_one_paragraph(GEMSPEC.description)}
-
-				== Project Page
-
-				  #{GEMSPEC.homepage}
-
-				== Installation
-
-				Via gems:
-
-				  $ sudo gem install #{GEMSPEC.name}
-
-				or from source:
-
-				  $ wget http://deveiate.org/code/#{PKG_FILE_NAME}.tar.gz
-				  $ tar -xzvf #{PKG_FILE_NAME}.tar.gz
-				  $ cd #{PKG_FILE_NAME}
-				  $ sudo rake install
-
-				== Changes
-				#{relnotes}
-			}.gsub( /^\t+/, '' )
-
-			File.open( task.name, File::WRONLY|File::TRUNC|File::CREAT ) do |fh|
-				fh.print( announce_body )
-			end
-
-			edit task.name
-		end
-		CLOBBER.include( RELEASE_ANNOUNCE_FILE )
-
-
-		desc 'Send out a release announcement'
-		task :announce => [RELEASE_ANNOUNCE_FILE] do
-			email         = TMail::Mail.new
-
-			if $publish_privately || RELEASE_ANNOUNCE_ADDRESSES.empty?
-				trace "Sending private announce mail"
-				email.to = 'rubymage@gmail.com'
-			else
-				trace "Sending public announce mail"
-				email.to  = RELEASE_ANNOUNCE_ADDRESSES
-				email.bcc = 'rubymage@gmail.com'
-			end
-
-			from = prompt_with_default( "Send announcement as:",
-				'Michael Granger <ged@FaerieMUD.org>' ) or fail
-
-			email.from    = from
-			email.subject = "[ANN] #{PKG_NAME} #{PKG_VERSION}"
-			email.body    = File.read( RELEASE_ANNOUNCE_FILE )
-			email.date    = Time.new
-
-			email.message_id = gen_message_id()
-
-			log "About to send the following email:"
-			puts '---',
-			     email.to_s,
-			     '---'
-
-				ask_for_confirmation( "Will send via #{SMTP_HOST}." ) do
-				pwent = Etc.getpwuid( Process.euid )
-				curuser = pwent ? pwent.name : 'unknown'
-				username = prompt_with_default( "SMTP user", curuser )
-				password = prompt_for_password()
-
-				trace "Creating SMTP connection to #{SMTP_HOST}:#{SMTP_PORT}"
-				smtp = Net::SMTP.new( SMTP_HOST, SMTP_PORT )
-				smtp.set_debug_output( $stdout )
-				smtp.esmtp = true
-
-				trace "connecting..."
-				smtp.ssl_start( Socket.gethostname, username, password, :plain ) do |smtp|
-					trace "sending message..."
-					smtp.send_message( email.to_s, email.from, email.to )
+			desc "Publish the project docs to #{PROJECT_HOST}"
+			task :upload_docs => [ :apidocs ] do
+				when_writing( "Publishing docs to #{PROJECT_SCPDOCURL}" ) do
+					log "Uploading API documentation to %s:%s" % [ PROJECT_HOST, PROJECT_DOCDIR ]
+					run 'ssh', PROJECT_HOST, "rm -rf #{PROJECT_DOCDIR}"
+					run 'scp', '-qCr', API_DOCSDIR, PROJECT_SCPDOCURL
 				end
-				trace "done."
+			end
+
+			desc "Publish the project packages to #{PROJECT_HOST}"
+			task :upload_packages => [ :package ] do
+				when_writing( "Uploading packages") do
+					pkgs = Pathname.glob( PKGDIR + "#{PKG_FILE_NAME}.{gem,tar.gz,tar.bz2,zip}" )
+					log "Uploading %d packages to #{PROJECT_SCPPUBURL}" % [ pkgs.length ]
+					pkgs.each do |pkgfile|
+						run 'scp', '-qC', pkgfile, PROJECT_SCPPUBURL
+	                end
+	            end
 			end
 		end
 
+		# Only define the announcement tasks if there are addresses to announce to
+		if RELEASE_ANNOUNCE_ADDRESSES.empty?
+			task :no_announce_addresses do
+				log "Skipping announcement: no announce addresses"
+			end
+			task :announce => :no_announce_addresses
+
+		else
+			file RELEASE_ANNOUNCE_FILE => [RELEASE_NOTES_FILE] do |task|
+				relnotes = File.read( RELEASE_NOTES_FILE )
+				announce_body = %{
+
+					Version #{PKG_VERSION} of #{PKG_NAME} has been released.
+
+					#{Text::Format.new(:first_indent => 0).format_one_paragraph(GEMSPEC.description)}
+
+					== Project Page
+
+					  #{GEMSPEC.homepage}
+
+					== Installation
+
+					Via gems:
+
+					  $ sudo gem install #{GEMSPEC.name}
+
+					or from source:
+
+					  $ wget http://deveiate.org/code/#{PKG_FILE_NAME}.tar.gz
+					  $ tar -xzvf #{PKG_FILE_NAME}.tar.gz
+					  $ cd #{PKG_FILE_NAME}
+					  $ sudo rake install
+
+					== Changes
+					#{relnotes}
+				}.gsub( /^\t+/, '' )
+
+				File.open( task.name, File::WRONLY|File::TRUNC|File::CREAT ) do |fh|
+					fh.print( announce_body )
+				end
+
+				edit task.name
+			end
+			CLOBBER.include( RELEASE_ANNOUNCE_FILE )
+
+
+			desc 'Send out a release announcement'
+			task :announce => [RELEASE_ANNOUNCE_FILE] do
+				email         = TMail::Mail.new
+
+				if $publish_privately || RELEASE_ANNOUNCE_ADDRESSES.empty?
+					trace "Sending private announce mail"
+					email.to = 'rubymage@gmail.com'
+				else
+					trace "Sending public announce mail"
+					email.to  = RELEASE_ANNOUNCE_ADDRESSES
+					email.bcc = 'rubymage@gmail.com'
+				end
+
+				from = prompt_with_default( "Send announcement as:",
+					'Michael Granger <ged@FaerieMUD.org>' ) or fail
+
+				email.from    = from
+				email.subject = "[ANN] #{PKG_NAME} #{PKG_VERSION}"
+				email.body    = File.read( RELEASE_ANNOUNCE_FILE )
+				email.date    = Time.new
+
+				email.message_id = gen_message_id()
+
+				log "About to send the following email:"
+				puts '---',
+				     email.to_s,
+				     '---'
+
+					ask_for_confirmation( "Will send via #{SMTP_HOST}." ) do
+					pwent = Etc.getpwuid( Process.euid )
+					curuser = pwent ? pwent.name : 'unknown'
+					username = prompt_with_default( "SMTP user", curuser )
+					password = prompt_for_password()
+
+					trace "Creating SMTP connection to #{SMTP_HOST}:#{SMTP_PORT}"
+					smtp = Net::SMTP.new( SMTP_HOST, SMTP_PORT )
+					smtp.set_debug_output( $stdout )
+					smtp.esmtp = true
+
+					trace "connecting..."
+					smtp.ssl_start( Socket.gethostname, username, password, :plain ) do |smtp|
+						trace "sending message..."
+						smtp.send_message( email.to_s, email.from, email.to )
+					end
+					trace "done."
+				end
+			end
+		end
 
 		desc 'Publish the new release to Gemcutter'
 		task :publish => [:clean, :gem, :notes] do |task|
