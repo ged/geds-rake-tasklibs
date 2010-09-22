@@ -13,6 +13,10 @@
 - project_pubhost: Project publication host
 - project_pubdir: Project publication directory
 
+- gem_pubhost:
+    prompt: Gem publication host
+    post-process: "args.first || 'rubygems.org'"
+
 - release_mailto:
     prompt: |-
         Where should release announcements be sent?
@@ -29,7 +33,7 @@
 - authors: 
     prompt: |-
         Enter the project's authors, one per line, in the form: 
-            J. Random Hacker <jrandom@example.com>'
+            J. Random Hacker <jrandom@example.com>
     multiline: true
     post-process: |-
         if args.length == 1 && args.first.is_a?( Hash )

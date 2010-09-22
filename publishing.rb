@@ -13,6 +13,7 @@ $publish_privately = false
 
 ### Add SSL to Net::SMTP
 class Net::SMTP
+
 	def ssl_start( helo='localhost.localdomain', user=nil, secret=nil, authtype=nil )
 		if block_given?
 			begin
@@ -93,6 +94,9 @@ begin
 	require 'etc'
 	require 'socket'
 	require 'text/format'
+	require 'rubygems/gemcutter_utilities'
+
+	include Gem::GemcutterUtilities
 
 	### Generate a valid RFC822 message-id
 	def gen_message_id
@@ -101,6 +105,48 @@ begin
 			(rand( 2 ** 64 - 1 )).to_s( 36 ),
 			Socket.gethostname
 		]
+	end
+
+
+	### Fetch the rubygems API token if it hasn't been already.
+	def sign_in_to_rubygems
+		return if Gem.configuration.rubygems_api_key
+
+		log "Enter your RubyGems.org credentials."
+
+		email    = prompt "   Email: "
+		password = prompt_for_password( "Password: " )
+
+		response = rubygems_api_request( :get, "api/v1/api_key" ) do |request|
+			request.basic_auth( email, password )
+		end
+
+		with_response( response ) do |resp|
+			log "Signed in."
+			Gem.configuration.rubygems_api_key = resp.body
+		end
+	end
+
+
+	### Push the gem at the specified +path+ to the rubygems server at +gemhost+.
+	def push_gem( path, gemhost )
+		ENV['RUBYGEMS_HOST'] = "http://#{gemhost}"
+
+		sign_in_to_rubygems()
+
+		response = rubygems_api_request( :post, "api/v1/gems" ) do |request|
+			request.body = Gem.read_binary( path )
+			request.add_field "Content-Length", request.body.size
+			request.add_field "Content-Type",   "application/octet-stream"
+			request.add_field "Authorization",  Gem.configuration.rubygems_api_key
+		end
+
+		case response
+		when Net::HTTPSuccess
+			log( response.body )
+		else
+			fail( response.body )
+		end
 	end
 
 
@@ -262,11 +308,18 @@ begin
 			end
 		end
 
-		desc 'Publish the new release to Gemcutter'
-		task :publish => [:clean, :gem, :notes] do |task|
-			ask_for_confirmation( "Publish #{GEM_FILE_NAME} to Gemcutter?", false ) do
-				gempath = PKGDIR + GEM_FILE_NAME
-				sh 'gem', 'push', gempath
+		if GEM_PUBHOST.empty?
+			task :no_gem_host do
+				log "Skipping gem push: no gem publication host."
+			end
+			task :publish => :no_gem_host
+		else
+			desc 'Publish the new gem to #{GEM_PUBHOST}'
+			task :publish => [:clean, :gem, :notes] do |task|
+				ask_for_confirmation( "Publish #{GEM_FILE_NAME} to #{GEM_PUBHOST}?", false ) do
+					gempath = PKGDIR + GEM_FILE_NAME
+					push_gem( gempath, GEM_PUBHOST )
+				end
 			end
 		end
 	end
@@ -282,6 +335,7 @@ rescue LoadError => err
 	end
 
 	task :release => :no_release_tasks
+	task "release:rerelease" => :no_release_tasks
 	task "release:announce" => :no_release_tasks
 	task "release:publish" => :no_release_tasks
 	task "release:notes" => :no_release_tasks
