@@ -44,6 +44,7 @@ begin
 	end
 
 	class YARD::CLI::Base; include YardGlobals; end
+	class YARD::CLI::Command; include YardGlobals; end
 	class YARD::Parser::SourceParser; extend YardGlobals; include YardGlobals; end
 	class YARD::Parser::CParser; include YardGlobals; end
 	class YARD::CodeObjects::Base; include YardGlobals; end
