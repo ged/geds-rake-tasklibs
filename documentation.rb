@@ -63,8 +63,15 @@ begin
 		require 'yard/parser/ruby/ruby_parser'
 		class YARD::Parser::Ruby::RipperParser < Ripper
 			def on_comment(comment)
-				$stderr.puts "Adding comment: %p" % [ comment ]
 				visit_ns_token(:comment, comment)
+				case comment
+				when /\A# @group\s+(.+)\s*\Z/
+					@groups.unshift [lineno, $1]
+					return
+				when /\A# @endgroup\s*\Z/
+					@groups.unshift [lineno, nil]
+					return
+				end
 
 				comment = comment.gsub(/^\#+\s{0,1}/, '').chomp
 				append_comment = @comments[lineno - 1]
