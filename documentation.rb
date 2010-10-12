@@ -54,6 +54,7 @@ begin
 	class YARD::RegistryStore; include YardGlobals; end
 	class YARD::Docstring; include YardGlobals; end
 	module YARD::Templates::Helpers::ModuleHelper; include YardGlobals; end
+	module YARD::Templates::Helpers::HtmlHelper; include YardGlobals; end
 
 	if vvec(RUBY_VERSION) >= vvec("1.9.1")
 		# Monkeypatched to allow more than two '#' characters at the beginning
