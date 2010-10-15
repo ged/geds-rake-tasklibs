@@ -235,16 +235,7 @@ begin
 
 					== Installation
 
-					Via gems:
-
 					  $ sudo gem install #{GEMSPEC.name}
-
-					or from source:
-
-					  $ wget http://deveiate.org/code/#{PKG_FILE_NAME}.tar.gz
-					  $ tar -xzvf #{PKG_FILE_NAME}.tar.gz
-					  $ cd #{PKG_FILE_NAME}
-					  $ sudo rake install
 
 					== Changes
 					#{relnotes}
