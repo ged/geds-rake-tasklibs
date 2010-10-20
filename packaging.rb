@@ -12,7 +12,7 @@ include Config
 ### Task: prerelease
 desc "Append the package build number to package versions"
 task :prerelease do
-	GEMSPEC.version.version << ".#{PKG_BUILD}"
+	GEMSPEC.version.version << ".pre.#{PKG_BUILD}"
 	Rake::Task[:gem].clear
 
 	Gem::PackageTask.new( GEMSPEC ) do |pkg|
