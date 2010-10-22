@@ -5,6 +5,8 @@
 RELEASE_NOTES_FILE    = 'release.notes'
 RELEASE_ANNOUNCE_FILE = 'release.ann'
 
+GEM_PUBHOST = '' unless defined?( GEM_PUBHOST )
+
 require 'net/smtp'
 require 'net/protocol'
 require 'openssl'
