@@ -304,6 +304,11 @@ GEMSPEC   = Gem::Specification.new do |gem|
 	gem.signing_key       = '/Volumes/Keys/ged-private_gem_key.pem'
 	gem.cert_chain        = [File.expand_path('~/.gem/ged-public_gem_cert.pem')]
 
+<% if settings['required_ruby_version'] && 
+		  settings['required_ruby_version'] =~ /[1-9]/ %>
+	gem.required_ruby_version = '<%= settings['required_ruby_version'] %>'
+<% end %>
+
 	DEPENDENCIES.each do |name, version|
 		version = '>= 0' if version.length.zero?
 		gem.add_runtime_dependency( name, version )
