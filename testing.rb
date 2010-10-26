@@ -58,7 +58,7 @@ begin
 
 		desc "Generate regular color 'doc' spec output"
 		RSpec::Core::RakeTask.new( :doc ) do |task|
-			task.rspec_opts = COMMON_RSPEC_OPTS + ['-f', 'p', '-c']
+			task.rspec_opts = COMMON_RSPEC_OPTS + ['-f', 'd', '-c']
 		end
 
 		desc "Generate spec output with profiling"
