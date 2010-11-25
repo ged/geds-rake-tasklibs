@@ -229,6 +229,18 @@ unless defined?( HG_DOTDIR )
 		end
 
 
+		desc "Update to tip"
+		task :update do
+			run 'hg', 'update'
+		end
+
+
+		desc "Clobber all changes (hg up -C)"
+		task :update_and_clobber do
+			run 'hg', 'update', '-C'
+		end
+
+
 		desc "Check the current code in if tests pass"
 		task :checkin => ['hg:pull', 'hg:newfiles', 'test', COMMIT_MSG_FILE] do
 			targets = get_target_args()
