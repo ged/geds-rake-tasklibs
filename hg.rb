@@ -151,9 +151,10 @@ unless defined?( HG_DOTDIR )
 		task :prep_release do
 			tags = get_tags()
 			rev = get_current_rev()
+			pkg_version_tag = "v#{PKG_VERSION}"
 
 			# Look for a tag for the current release version, and if it exists abort
-			if tags.include?( PKG_VERSION )
+			if tags.include?( pkg_version_tag )
 				error "Version #{PKG_VERSION} already has a tag. Did you mean " +
 					"to increment the version in #{VERSION_FILE}?"
 				fail
@@ -164,8 +165,8 @@ unless defined?( HG_DOTDIR )
 			run 'hg', 'sign'
 
 			# Tag the current rev
-			log "Tagging rev #{rev} as #{PKG_VERSION}"
-			run 'hg', 'tag', PKG_VERSION
+			log "Tagging rev #{rev} as #{pkg_version_tag}"
+			run 'hg', 'tag', pkg_version_tag
 
 			# Offer to push
 			Rake::Task['hg:push'].invoke
