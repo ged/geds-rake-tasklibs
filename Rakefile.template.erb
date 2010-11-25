@@ -235,16 +235,15 @@ DEPENDENCIES = {
 
 # Developer Gem dependencies: gemname => version
 DEVELOPMENT_DEPENDENCIES = {
-	'rake'          => '>= 0.8.7',
-	'rcodetools'    => '>= 0.7.0.0',
-	'rcov'          => '>= 0.8.1.2.0',
-	'yard'          => '>= 0.6.1',
-	'RedCloth'      => '>= 4.2.3',
-	'rspec'         => '>= 2.0.1',
-	'ruby-termios'  => '>= 0.9.6',
-	'text-format'   => '>= 1.0.0',
-	'tmail'         => '>= 1.2.3.1',
-	'diff-lcs'      => '>= 1.1.2',
+	'rake'          => '~> 0.8.7',
+	'rcodetools'    => '~> 0.7.0.0',
+	'rcov'          => '~> 0.8.1.2.0',
+	'yard'          => '~> 0.6.1',
+	'RedCloth'      => '~> 4.2.3',
+	'rspec'         => '~> 2.0.1',
+	'ruby-termios'  => '~> 0.9.6',
+	'text-format'   => '~> 1.0.0',
+	'tmail'         => '~> 1.2.3.1',
 <%	settings['dev_dependencies'] ||= {} %>
 <%	settings['dev_dependencies'].each do |name, version| %>
 	'<%= name %>' => '<%= version %>',
@@ -279,9 +278,12 @@ GEMSPEC   = Gem::Specification.new do |gem|
 <% end %>
 
 	gem.authors           = <%= settings['authors'].keys.sort_by {|name| 
-		name.split(/\s+/).reverse }.join(', ').dump %>
+		name.split(/\s+/).reverse }.inspect %>
 	gem.email             = <%= settings['authors'].values.inspect %>
 	gem.homepage          = '<%= settings['project_homepage'] %>'
+<% if settings['project_licenses'] && !settings['project_licenses'].empty? %>
+	gem.licenses          = <%= settings['project_licenses'].inspect %>
+<% end %>
 
 	gem.has_rdoc          = true
 	gem.rdoc_options      = RDOC_OPTIONS

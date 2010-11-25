@@ -12,6 +12,9 @@
     post-process: "args.collect {|line| line.chomp }.join(\"\n\")"
 - project_pubhost: Project publication host
 - project_pubdir: Project publication directory
+- project_licenses:
+    prompt: Project license/s
+    multiline: true
 
 - gem_pubhost:
     prompt: Gem publication host
