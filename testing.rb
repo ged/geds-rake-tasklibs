@@ -47,6 +47,7 @@ begin
 	### Task: spec
 	desc "Run specs"
 	task :spec => 'spec:doc'
+	task :specs => :spec
 
 	namespace :spec do
 		desc "Run rspec every time there's a change to one of the files"
